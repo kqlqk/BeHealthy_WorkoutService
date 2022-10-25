@@ -1,4 +1,4 @@
-package me.kqlqk.behealthy.workoutservice;
+package me.kqlqk.behealthy.workout_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

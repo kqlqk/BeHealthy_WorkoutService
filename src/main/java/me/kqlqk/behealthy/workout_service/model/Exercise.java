@@ -1,8 +1,8 @@
-package me.kqlqk.behealthy.workoutservice.model;
+package me.kqlqk.behealthy.workout_service.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.kqlqk.behealthy.workoutservice.model.enums.MuscleGroup;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 
 import javax.persistence.*;
 
@@ -16,7 +16,7 @@ public class Exercise {
     @Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", unique = true, nullable = false, insertable = false, updatable = false)
     private String name;
 
     @Column(name = "name", nullable = false)
