@@ -1,10 +1,13 @@
 package integration.me.kqlqk.behealthy.workout_service.repository;
 
 import annotations.RepositoryTest;
+import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.repository.ExerciseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,5 +36,16 @@ public class ExerciseRepositoryTest {
 
         Exercise nullExercise = exerciseRepository.findByName("random");
         assertThat(nullExercise).isNull();
+    }
+
+    @Test
+    public void findByMuscleGroup_shouldFindByMuscleGroupOrReturnEmptyList() {
+        List<Exercise> exercises = exerciseRepository.findByMuscleGroup(MuscleGroup.CHEST_TRICEPS);
+
+        assertThat(exercises).isNotNull();
+        assertThat(exercises).hasSize(2);
+
+        List<Exercise> emptyMap = exerciseRepository.findByMuscleGroup(MuscleGroup.LOWER_BACK);
+        assertThat(emptyMap).isEmpty();
     }
 }
