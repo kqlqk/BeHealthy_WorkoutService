@@ -32,7 +32,7 @@ public class ExerciseRepositoryTest {
         Exercise exercise = exerciseRepository.findByName("bench press");
 
         assertThat(exercise).isNotNull();
-        assertThat(exercise.getId()).isEqualTo(1);
+        assertThat(exercise.getName()).isEqualTo("bench press");
 
         Exercise nullExercise = exerciseRepository.findByName("random");
         assertThat(nullExercise).isNull();
@@ -43,9 +43,7 @@ public class ExerciseRepositoryTest {
         List<Exercise> exercises = exerciseRepository.findByMuscleGroup(MuscleGroup.CHEST_TRICEPS);
 
         assertThat(exercises).isNotNull();
-        assertThat(exercises).hasSize(2);
-
-        List<Exercise> emptyMap = exerciseRepository.findByMuscleGroup(MuscleGroup.LOWER_BACK);
-        assertThat(emptyMap).isEmpty();
     }
 }
+
+
