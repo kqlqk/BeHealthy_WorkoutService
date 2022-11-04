@@ -14,6 +14,8 @@ public interface WorkoutInfoService {
 
     List<WorkoutInfo> getByUserIdAndWorkoutDay(long userId, int workoutDay);
 
+    boolean existsByUserId(long userId);
+
     void save(WorkoutInfo workoutInfo);
 
     void generateAndSaveWorkout(long userId, WorkoutsPerWeek workoutsPerWeek);

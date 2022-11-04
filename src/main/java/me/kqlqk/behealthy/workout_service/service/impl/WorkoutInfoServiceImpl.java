@@ -49,12 +49,17 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
+    public boolean existsByUserId(long userId) {
+        return workoutInfoRepository.existsByUserId(userId);
+    }
+
+    @Override
     public void save(@NonNull WorkoutInfo workoutInfo) {
         workoutInfoRepository.save(workoutInfo);
     }
 
     @Override
-    public void generateAndSaveWorkout(long userId, WorkoutsPerWeek workoutsPerWeek) {
+    public void generateAndSaveWorkout(long userId, @NonNull WorkoutsPerWeek workoutsPerWeek) {
         UserConditionDTO userConditionDTO = kcalsCounterClient.getUserConditionByUserId(userId);
 
         if (userConditionDTO.getGender() != Gender.MALE) {

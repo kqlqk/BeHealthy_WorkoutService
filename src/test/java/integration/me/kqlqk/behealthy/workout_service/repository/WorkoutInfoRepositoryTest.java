@@ -25,6 +25,7 @@ public class WorkoutInfoRepositoryTest {
         assertThat(nullWorkoutInfo).isNull();
     }
 
+
     @Test
     public void findByUserId_shouldFindByUserIdOrReturnEmptyList() {
         List<WorkoutInfo> workoutInfos = workoutInfoRepository.findByUserId(1);
@@ -33,6 +34,16 @@ public class WorkoutInfoRepositoryTest {
 
         List<WorkoutInfo> emptyWorkoutInfos = workoutInfoRepository.findByUserId(99);
         assertThat(emptyWorkoutInfos).isEmpty();
+    }
+
+    @Test
+    public void existsByUserId_shouldCheckIfExistsByUserId() {
+        boolean workoutInfo = workoutInfoRepository.existsByUserId(1);
+
+        assertThat(workoutInfo).isTrue();
+
+        boolean emptyWorkoutInfo = workoutInfoRepository.existsByUserId(99);
+        assertThat(emptyWorkoutInfo).isFalse();
     }
 
     @Test

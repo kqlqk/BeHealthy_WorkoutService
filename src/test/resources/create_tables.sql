@@ -5,7 +5,7 @@ create table exercises
 (
     id           bigserial   not null unique,
     name         varchar(50) not null unique,
-    description  varchar     not null,
+    description  text        not null,
     muscle_group varchar(50) not null,
 
     primary key (id)

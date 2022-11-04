@@ -1,5 +1,6 @@
 package me.kqlqk.behealthy.workout_service.service.impl;
 
+import lombok.NonNull;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.repository.ExerciseRepository;
@@ -34,7 +35,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return exerciseRepository.findByMuscleGroup(muscleGroup);
     }
 
-    public List<Exercise> getSpecificAmountOfMuscleGroup(int amount, MuscleGroup muscleGroup) {
+    public List<Exercise> getSpecificAmountOfMuscleGroup(int amount, @NonNull MuscleGroup muscleGroup) {
         List<Exercise> exercises = getByMuscleGroup(muscleGroup);
         List<Exercise> result = new ArrayList<>();
 

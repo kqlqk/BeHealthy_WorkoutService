@@ -21,7 +21,7 @@ public class Exercise {
     @Column(name = "name", unique = true, nullable = false, insertable = false, updatable = false)
     private String name;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
