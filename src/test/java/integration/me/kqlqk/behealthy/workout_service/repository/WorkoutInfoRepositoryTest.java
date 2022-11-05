@@ -55,4 +55,11 @@ public class WorkoutInfoRepositoryTest {
         List<WorkoutInfo> emptyWorkoutInfos = workoutInfoRepository.findByUserIdAndWorkoutDay(99, 1);
         assertThat(emptyWorkoutInfos).isEmpty();
     }
+
+    @Test
+    public void deleteAllByUserId_shouldDeleteAllWorkoutsFromDbByUserId() {
+        workoutInfoRepository.deleteByUserId(1);
+
+        assertThat(workoutInfoRepository.findByUserId(1)).isEmpty();
+    }
 }

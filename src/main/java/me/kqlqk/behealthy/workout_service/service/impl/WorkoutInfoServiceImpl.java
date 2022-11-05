@@ -49,6 +49,11 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
+    public void deleteByUserId(long userId) {
+        workoutInfoRepository.deleteByUserId(userId);
+    }
+
+    @Override
     public boolean existsByUserId(long userId) {
         return workoutInfoRepository.existsByUserId(userId);
     }
@@ -60,6 +65,10 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public void generateAndSaveWorkout(long userId, @NonNull WorkoutsPerWeek workoutsPerWeek) {
+        if (existsByUserId(userId)) {
+            deleteByUserId(userId);
+        }
+
         UserConditionDTO userConditionDTO = kcalsCounterClient.getUserConditionByUserId(userId);
 
         if (userConditionDTO.getGender() != Gender.MALE) {
