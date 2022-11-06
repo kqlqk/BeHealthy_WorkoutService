@@ -8,7 +8,7 @@ import me.kqlqk.behealthy.workout_service.enums.WorkoutsPerWeek;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserWorkoutDTO {
+public class WorkoutInfoDTO {
     private long userId;
     private WorkoutsPerWeek workoutsPerWeek;
 }
