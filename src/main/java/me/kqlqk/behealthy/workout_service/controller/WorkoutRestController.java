@@ -2,7 +2,6 @@ package me.kqlqk.behealthy.workout_service.controller;
 
 import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFound;
-import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +20,12 @@ public class WorkoutRestController {
     }
 
     @GetMapping("/workout")
-    public List<WorkoutInfo> getWorkout(@RequestParam("userId") long userId) {
+    public List<WorkoutInfoDTO> getWorkout(@RequestParam("userId") long userId) {
         if (!workoutInfoService.existsByUserId(userId)) {
             throw new WorkoutNotFound("User's workout with userId = " + userId + " not found");
         }
 
-        return workoutInfoService.getByUserId(userId);
+        return WorkoutInfoDTO.convertListOfWorkoutInfoToListOfWorkoutInfoDTO(workoutInfoService.getByUserId(userId));
     }
 
     @PostMapping("/workout")

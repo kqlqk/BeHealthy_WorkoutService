@@ -95,31 +95,15 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
         int numberPerDay = 1;
         List<Exercise> split = Stream.of(
                         exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST_TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS_CHEST),
+                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS),
                         exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS))
+                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         for (Exercise exercise : split) {
             save(new WorkoutInfo(userId, exercise, 1, numberPerDay++));
         }
-
-
-        numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 11, numberPerDay++));
-        }
-
 
         numberPerDay = 1;
         split = Stream.of(
