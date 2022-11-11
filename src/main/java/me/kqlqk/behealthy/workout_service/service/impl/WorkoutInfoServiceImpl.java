@@ -6,7 +6,7 @@ import me.kqlqk.behealthy.workout_service.enums.Gender;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.enums.WorkoutsPerWeek;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.GenderIsOnDevelopingException;
-import me.kqlqk.behealthy.workout_service.feign_client.KcalsCounterClient;
+import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
@@ -23,13 +23,13 @@ import java.util.stream.Stream;
 @Service
 public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     private final WorkoutInfoRepository workoutInfoRepository;
-    private final KcalsCounterClient kcalsCounterClient;
+    private final ConditionClient conditionClient;
     private final ExerciseService exerciseService;
 
     @Autowired
-    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, KcalsCounterClient kcalsCounterClient, ExerciseService exerciseService) {
+    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, ConditionClient conditionClient, ExerciseService exerciseService) {
         this.workoutInfoRepository = workoutInfoRepository;
-        this.kcalsCounterClient = kcalsCounterClient;
+        this.conditionClient = conditionClient;
         this.exerciseService = exerciseService;
     }
 
@@ -69,7 +69,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
             deleteByUserId(userId);
         }
 
-        UserConditionDTO userConditionDTO = kcalsCounterClient.getUserConditionByUserId(userId);
+        UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
 
         if (userConditionDTO.getGender() != Gender.MALE) {
             throw new GenderIsOnDevelopingException("Workouts for females are on developing, coming soon in next updates");
