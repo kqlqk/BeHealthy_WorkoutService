@@ -20,7 +20,7 @@ public class WorkoutRestController {
     }
 
     @GetMapping("/workout")
-    public List<WorkoutInfoDTO> getWorkout(@RequestParam("userId") long userId) {
+    public List<WorkoutInfoDTO> getWorkout(@RequestParam long userId) {
         if (!workoutInfoService.existsByUserId(userId)) {
             throw new WorkoutNotFound("User's workout with userId = " + userId + " not found");
         }
@@ -29,22 +29,22 @@ public class WorkoutRestController {
     }
 
     @PostMapping("/workout")
-    public ResponseEntity<?> createWorkout(@RequestBody WorkoutInfoDTO workoutInfoDTO) {
-        if (workoutInfoService.existsByUserId(workoutInfoDTO.getUserId())) {
-            throw new WorkoutNotFound("User's workout with userId = " + workoutInfoDTO.getUserId() + " already exists");
+    public ResponseEntity<?> createWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
+        if (workoutInfoService.existsByUserId(userId)) {
+            throw new WorkoutNotFound("User's workout with userId = " + userId + " already exists");
         }
 
-        workoutInfoService.generateAndSaveWorkout(workoutInfoDTO.getUserId(), workoutInfoDTO.getWorkoutsPerWeek());
+        workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
 
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/workout")
-    public void updateWorkout(@RequestBody WorkoutInfoDTO workoutInfoDTO) {
-        if (!workoutInfoService.existsByUserId(workoutInfoDTO.getUserId())) {
-            throw new WorkoutNotFound("User's workout with userId = " + workoutInfoDTO.getUserId() + " not found");
+    public void updateWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
+        if (!workoutInfoService.existsByUserId(userId)) {
+            throw new WorkoutNotFound("User's workout with userId = " + userId + " not found");
         }
 
-        workoutInfoService.generateAndSaveWorkout(workoutInfoDTO.getUserId(), workoutInfoDTO.getWorkoutsPerWeek());
+        workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
     }
 }

@@ -88,7 +88,6 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 generateAndSave4DaysSplit(userId);
                 break;
         }
-
     }
 
     public void generateAndSaveUpperLowerBodySplit(long userId) {
