@@ -4,8 +4,7 @@ import lombok.NonNull;
 import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.enums.Gender;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.enums.WorkoutsPerWeek;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.GenderIsOnDevelopingException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.IsOnDevelopingException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
@@ -15,6 +14,7 @@ import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,17 +35,28 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public WorkoutInfo getById(long id) {
-        return workoutInfoRepository.findById(id);
+        WorkoutInfo workoutInfo = workoutInfoRepository.findById(id);
+        workoutInfo.setWorkoutsPerWeek(workoutInfo.getWorkoutDay());
+
+        return workoutInfo;
     }
 
     @Override
     public List<WorkoutInfo> getByUserId(long userId) {
-        return workoutInfoRepository.findByUserId(userId);
-    }
+        List<WorkoutInfo> workoutInfos = new ArrayList<>();
 
-    @Override
-    public List<WorkoutInfo> getByUserIdAndWorkoutDay(long userId, int workoutDay) {
-        return workoutInfoRepository.findByUserIdAndWorkoutDay(userId, workoutDay);
+        int maxWorkoutsPerWeek = 2;
+        for (WorkoutInfo workoutInfo : workoutInfoRepository.findByUserId(userId)) {
+            if (workoutInfo.getWorkoutDay() > maxWorkoutsPerWeek) {
+                maxWorkoutsPerWeek = workoutInfo.getWorkoutDay();
+            }
+        }
+
+        int finalMaxWorkoutsPerWeek = maxWorkoutsPerWeek;
+        return workoutInfoRepository.findByUserId(userId)
+                .stream()
+                .peek(workoutInfo -> workoutInfo.setWorkoutsPerWeek(finalMaxWorkoutsPerWeek))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -64,7 +75,11 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
-    public void generateAndSaveWorkout(long userId, @NonNull WorkoutsPerWeek workoutsPerWeek) {
+    public void generateAndSaveWorkout(long userId, int workoutsPerWeek) {
+        if (workoutsPerWeek < 2 || workoutsPerWeek > 4) {
+            throw new IsOnDevelopingException("Allows only 2, 3 or 4 workouts per week, others is on developing");
+        }
+
         if (existsByUserId(userId)) {
             deleteByUserId(userId);
         }
@@ -72,19 +87,19 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
         UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
 
         if (userConditionDTO.getGender() != Gender.MALE) {
-            throw new GenderIsOnDevelopingException("Workouts for females are on developing, coming soon in next updates");
+            throw new IsOnDevelopingException("Workouts for females are on developing, coming soon in next updates");
         }
 
         switch (workoutsPerWeek) {
-            case TWO:
+            case 2:
                 generateAndSaveUpperLowerBodySplit(userId);
                 break;
 
-            case THREE:
+            case 3:
                 generateAndSavePushPullLegsSplit(userId);
                 break;
 
-            case FOUR:
+            case 4:
                 generateAndSave4DaysSplit(userId);
                 break;
         }

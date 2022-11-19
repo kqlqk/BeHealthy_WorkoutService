@@ -30,6 +30,9 @@ public class WorkoutInfo {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
+    @Transient
+    private int workoutsPerWeek;
+
     public WorkoutInfo(long userId, Exercise exercise, int workoutDay, int numberPerDay) {
         this.userId = userId;
         this.exercise = exercise;
