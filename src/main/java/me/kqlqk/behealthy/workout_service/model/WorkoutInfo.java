@@ -7,7 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "workout_info")
+@Table(name = "workout_info", schema = "public", catalog = "workoutservicedb")
 @Getter
 @Setter
 @NoArgsConstructor

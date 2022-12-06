@@ -14,7 +14,6 @@ import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,17 +42,17 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public List<WorkoutInfo> getByUserId(long userId) {
-        List<WorkoutInfo> workoutInfos = new ArrayList<>();
+        List<WorkoutInfo> workoutInfos = workoutInfoRepository.findByUserId(userId);
 
         int maxWorkoutsPerWeek = 2;
-        for (WorkoutInfo workoutInfo : workoutInfoRepository.findByUserId(userId)) {
+        for (WorkoutInfo workoutInfo : workoutInfos) {
             if (workoutInfo.getWorkoutDay() > maxWorkoutsPerWeek) {
                 maxWorkoutsPerWeek = workoutInfo.getWorkoutDay();
             }
         }
 
         int finalMaxWorkoutsPerWeek = maxWorkoutsPerWeek;
-        return workoutInfoRepository.findByUserId(userId)
+        return workoutInfos
                 .stream()
                 .peek(workoutInfo -> workoutInfo.setWorkoutsPerWeek(finalMaxWorkoutsPerWeek))
                 .collect(Collectors.toList());

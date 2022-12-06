@@ -1,7 +1,10 @@
 package me.kqlqk.behealthy.workout_service.controller;
 
 import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
+import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
+import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +16,12 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class WorkoutRestController {
     private final WorkoutInfoService workoutInfoService;
+    private final ExerciseService exerciseService;
 
     @Autowired
-    public WorkoutRestController(WorkoutInfoService workoutInfoService) {
+    public WorkoutRestController(WorkoutInfoService workoutInfoService, ExerciseService exerciseService) {
         this.workoutInfoService = workoutInfoService;
+        this.exerciseService = exerciseService;
     }
 
     @GetMapping("/workout")
@@ -46,5 +51,22 @@ public class WorkoutRestController {
         }
 
         workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
+    }
+
+    @GetMapping("/exercises")
+    public ResponseEntity<?> getExercisesByParams(@RequestParam(required = false) String name,
+                                                  @RequestParam(required = false) MuscleGroup muscleGroup) {
+        if (name == null && muscleGroup == null) {
+            throw new ExerciseNotFoundException("was not provided 'name' or 'muscleGroup'");
+        }
+        if (name != null && muscleGroup != null) {
+            throw new ExerciseNotFoundException("provide only 1 filter");
+        }
+
+        if (name != null) {
+            return ResponseEntity.ok(exerciseService.getByName(name));
+        } else {
+            return ResponseEntity.ok(exerciseService.getByMuscleGroup(muscleGroup));
+        }
     }
 }

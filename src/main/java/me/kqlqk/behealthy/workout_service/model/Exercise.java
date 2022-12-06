@@ -8,7 +8,7 @@ import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "exercises")
+@Table(name = "exercises", schema = "public", catalog = "workoutservicedb")
 @Getter
 @Setter
 @NoArgsConstructor
