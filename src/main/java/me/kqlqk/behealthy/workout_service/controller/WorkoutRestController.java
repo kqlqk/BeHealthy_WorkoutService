@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -55,7 +56,7 @@ public class WorkoutRestController {
 
     @GetMapping("/exercises")
     public ResponseEntity<?> getExercisesByParams(@RequestParam(required = false) String name,
-                                                  @RequestParam(required = false) MuscleGroup muscleGroup) {
+                                                  @RequestParam(required = false) String muscleGroup) {
         if (name == null && muscleGroup == null) {
             throw new ExerciseNotFoundException("was not provided 'name' or 'muscleGroup'");
         }
@@ -66,7 +67,12 @@ public class WorkoutRestController {
         if (name != null) {
             return ResponseEntity.ok(exerciseService.getByName(name));
         } else {
-            return ResponseEntity.ok(exerciseService.getByMuscleGroup(muscleGroup));
+            Stream.of(MuscleGroup.values())
+                    .filter(m -> m.name().equalsIgnoreCase(muscleGroup))
+                    .findAny()
+                    .orElseThrow(() -> new ExerciseNotFoundException("Muscle group not found"));
+
+            return ResponseEntity.ok(exerciseService.getByMuscleGroup(MuscleGroup.valueOf(muscleGroup.toUpperCase())));
         }
     }
 }
