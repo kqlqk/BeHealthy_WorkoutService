@@ -30,13 +30,21 @@ public class WorkoutInfo {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
+    @Column(name = "reps", nullable = false)
+    private int reps;
+
+    @Column(name = "sets", nullable = false)
+    private int sets;
+
     @Transient
     private int workoutsPerWeek;
 
-    public WorkoutInfo(long userId, Exercise exercise, int workoutDay, int numberPerDay) {
+    public WorkoutInfo(long userId, Exercise exercise, int workoutDay, int numberPerDay, int reps, int sets) {
         this.userId = userId;
         this.exercise = exercise;
         this.workoutDay = workoutDay;
         this.numberPerDay = numberPerDay;
+        this.reps = reps;
+        this.sets = sets;
     }
 }

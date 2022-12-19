@@ -18,6 +18,8 @@ public class WorkoutInfoDTO {
     private int numberPerDay;
     private Exercise exercise;
     private int workoutsPerWeek;
+    private int reps;
+    private int sets;
 
     public static List<WorkoutInfoDTO> convertListOfWorkoutInfoToListOfWorkoutInfoDTO(List<WorkoutInfo> workoutInfos) {
         List<WorkoutInfoDTO> res = new ArrayList<>();
@@ -28,7 +30,9 @@ public class WorkoutInfoDTO {
                     workoutInfo.getWorkoutDay(),
                     workoutInfo.getNumberPerDay(),
                     workoutInfo.getExercise(),
-                    workoutInfo.getWorkoutsPerWeek());
+                    workoutInfo.getWorkoutsPerWeek(),
+                    workoutInfo.getReps(),
+                    workoutInfo.getSets());
 
             res.add(workoutInfoDTO);
         }
