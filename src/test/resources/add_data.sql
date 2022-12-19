@@ -240,15 +240,39 @@ values ('leg extension',
         E.g. https://www.youtube.com/watch?v=swZQC689o9U',
         'QUADRICEPS');
 
+insert into exercises(name, description, muscle_group)
+values ('hip thrust',
+        '1. Start seated on the floor, knees bent, feet slightly wider than hip-distance apart. The upper back should be resting against the edge of the weight bench in the center of the bench.
+        2. Place the weight bar across the hips. Hold onto the bar to keep it in place, but do not use your arms to lift it.
+        3. Squeeze the glutes and press the bar straight up until the hips are in line with the shoulders and knees.
+        4. Slowly lower the bar down until the hips are just a few inches off the floor.
+        E.g. https://www.youtube.com/watch?v=Zp26q4BY5HE',
+        'BUTTOKS');
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id)
-values (1, 1, 1, 1);
+insert into exercises(name, description, muscle_group)
+values ('t-bar rows',
+        '1. Bend over the end of the bar near to the weight and take it with a V-grip handle in both hands.
+        2. Maintaining a neutral arch in your lower back, squeeze your shoulder blades together and lift the bar, so the plate touches your chest.
+        3. Slowly lower back down to the starting position, keeping your back and shoulders engaged with the motion.
+        E.g. https://www.youtube.com/watch?v=KDEl3AmZbVE',
+        'REAR_DELTS_LATS');
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id)
-values (1, 1, 2, 4);
+insert into exercises(name, description, muscle_group)
+values ('reverse grip dumbbells curl',
+        '1. Stand with your legs shoulder-width apart and hold bar at your thighs with an overhand grip.
+        2. Raise your forearms, keeping your upper arms close to your body, so that your palms face forward and the bar are shoulder height.
+        3. Slowly return the bar and repeat.
+        E.g. https://www.youtube.com/watch?v=nRgxYX2Ve9w',
+        'BICEPS_FOREARMS');
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id)
-values (1, 2, 1, 2);
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
+values (1, 1, 1, 1, 8, 4);
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id)
-values (1, 2, 2, 5);
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
+values (1, 1, 2, 4, 8, 3);
+
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
+values (1, 2, 1, 2, 6, 5);
+
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
+values (1, 2, 2, 5, 10, 4);

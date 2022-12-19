@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 @Component
-public class CustomErrorDecoder implements ErrorDecoder {
+public class CustomErrorDecoder implements ErrorDecoder {//FIXME
     private final ErrorDecoder errorDecoder = new Default();
 
     @Override

@@ -2,11 +2,8 @@ package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
 import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
-import me.kqlqk.behealthy.workout_service.enums.Gender;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.IsOnDevelopingException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
-import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
@@ -14,10 +11,8 @@ import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class WorkoutInfoServiceImpl implements WorkoutInfoService {
@@ -32,19 +27,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
         this.exerciseService = exerciseService;
     }
 
-    @Override
-    public WorkoutInfo getById(long id) {
-        WorkoutInfo workoutInfo = workoutInfoRepository.findById(id);
-        workoutInfo.setWorkoutsPerWeek(workoutInfo.getWorkoutDay());
-
-        return workoutInfo;
-    }
 
     @Override
     public List<WorkoutInfo> getByUserId(long userId) {
         List<WorkoutInfo> workoutInfos = workoutInfoRepository.findByUserId(userId);
 
-        int maxWorkoutsPerWeek = 2;
+        int maxWorkoutsPerWeek = 1;
         for (WorkoutInfo workoutInfo : workoutInfos) {
             if (workoutInfo.getWorkoutDay() > maxWorkoutsPerWeek) {
                 maxWorkoutsPerWeek = workoutInfo.getWorkoutDay();
@@ -59,11 +47,6 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
-    public void deleteByUserId(long userId) {
-        workoutInfoRepository.deleteByUserId(userId);
-    }
-
-    @Override
     public boolean existsByUserId(long userId) {
         return workoutInfoRepository.existsByUserId(userId);
     }
@@ -75,166 +58,1223 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public void generateAndSaveWorkout(long userId, int workoutsPerWeek) {
-        if (workoutsPerWeek < 2 || workoutsPerWeek > 4) {
-            throw new IsOnDevelopingException("Allows only 2, 3 or 4 workouts per week, others is on developing");
-        }
-
-        if (existsByUserId(userId)) {
-            deleteByUserId(userId);
-        }
-
         UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
 
-        if (userConditionDTO.getGender() != Gender.MALE) {
-            throw new IsOnDevelopingException("Workouts for females are on developing, coming soon in next updates");
+        switch (userConditionDTO.getGender()) {
+            case MALE:
+                generateMaleWorkout(userId, workoutsPerWeek);
+                break;
+
+            case FEMALE:
+                generateFemaleWorkout(userId, workoutsPerWeek);
+                break;
         }
 
+    }
+
+    private void generateMaleWorkout(long userId, int workoutsPerWeek) {
         switch (workoutsPerWeek) {
+            case 1:
+                generateAndSave1DayMaleSplit(userId);
+                break;
+
             case 2:
-                generateAndSaveUpperLowerBodySplit(userId);
+                generateAndSave2DaysMaleSplit(userId);
                 break;
 
             case 3:
-                generateAndSavePushPullLegsSplit(userId);
+                generateAndSave3DaysMaleSplit(userId);
                 break;
 
             case 4:
-                generateAndSave4DaysSplit(userId);
+                generateAndSave4DaysMaleSplit(userId);
+                break;
+
+            case 5:
+                generateAndSave5DaysMaleSplit(userId);
                 break;
         }
     }
 
-    public void generateAndSaveUpperLowerBodySplit(long userId) {
+    private void generateAndSave1DayMaleSplit(long userId) {
         int numberPerDay = 1;
-        List<Exercise> split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST_TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                3));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 1, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                1,
+                numberPerDay++,
+                12,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                6,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                1,
+                numberPerDay,
+                15,
+                4));
+    }
+
+    private void generateAndSave2DaysMaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                1,
+                numberPerDay++,
+                6,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                1,
+                numberPerDay,
+                15,
+                4));
+
 
         numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                4));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 2, numberPerDay++));
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                2,
+                numberPerDay++,
+                12,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                2,
+                numberPerDay,
+                15,
+                4));
+    }
+
+    private void generateAndSave3DaysMaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                1,
+                numberPerDay,
+                8,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                8,
+                6));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay++,
+                12,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                2,
+                numberPerDay,
+                8,
+                5));
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                3,
+                numberPerDay,
+                12,
+                5));
+    }
+
+    private void generateAndSave4DaysMaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                1,
+                numberPerDay,
+                8,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                6,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay++,
+                12,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                2,
+                numberPerDay,
+                12,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FOREARMS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                3,
+                numberPerDay++,
+                12,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                3,
+                numberPerDay,
+                15,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                4,
+                numberPerDay,
+                12,
+                5));
+    }
+
+    private void generateAndSave5DaysMaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                1,
+                numberPerDay,
+                8,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay,
+                12,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS_LATS).get(0),
+                3,
+                numberPerDay,
+                8,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS_FOREARMS).get(0),
+                4,
+                numberPerDay,
+                8,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                5,
+                numberPerDay,
+                12,
+                4));
+    }
+
+    private void generateFemaleWorkout(long userId, int workoutsPerWeek) {
+        switch (workoutsPerWeek) {
+            case 1:
+                generateAndSave1DayFemaleSplit(userId);
+                break;
+
+            case 2:
+                generateAndSave2DaysFemaleSplit(userId);
+                break;
+
+            case 3:
+                generateAndSave3DaysFemaleSplit(userId);
+                break;
+
+            case 4:
+                generateAndSave4DaysFemaleSplit(userId);
+                break;
+
+            case 5:
+                generateAndSave5DaysFemaleSplit(userId);
+                break;
         }
     }
 
-    public void generateAndSavePushPullLegsSplit(long userId) {
+    private void generateAndSave1DayFemaleSplit(long userId) {
         int numberPerDay = 1;
-        List<Exercise> split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST_TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                1,
+                numberPerDay++,
+                10,
+                3));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 1, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
 
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
 
-        numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.BICEPS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 2, numberPerDay++));
-        }
-
-
-        numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 3, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                1,
+                numberPerDay,
+                15,
+                4));
     }
 
-    public void generateAndSave4DaysSplit(long userId) {
+    private void generateAndSave2DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
-        List<Exercise> split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST_TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 1, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                1,
+                numberPerDay++,
+                6,
+                5));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                1,
+                numberPerDay,
+                15,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                2,
+                numberPerDay++,
+                10,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                10,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                2,
+                numberPerDay++,
+                15,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS_LATS).get(0),
+                2,
+                numberPerDay,
+                8,
+                3));
+    }
+
+    private void generateAndSave3DaysFemaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                1,
+                numberPerDay++,
+                15,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                1,
+                numberPerDay,
+                12,
+                4));
 
 
         numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.BICEPS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                8,
+                6));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 2, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay,
+                12,
+                3));
+
 
         numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.REAR_DELTS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FOREARMS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 3, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                3,
+                numberPerDay,
+                8,
+                3));
+    }
+
+    private void generateAndSave4DaysFemaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                1,
+                numberPerDay++,
+                15,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                1,
+                numberPerDay,
+                12,
+                4));
+
 
         numberPerDay = 1;
-        split = Stream.of(
-                        exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS),
-                        exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                8,
+                6));
 
-        for (Exercise exercise : split) {
-            save(new WorkoutInfo(userId, exercise, 4, numberPerDay++));
-        }
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay,
+                12,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                3,
+                numberPerDay,
+                15,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                4,
+                numberPerDay++,
+                10,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                4,
+                numberPerDay,
+                15,
+                4));
+    }
+
+    private void generateAndSave5DaysFemaleSplit(long userId) {
+        int numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                1,
+                numberPerDay++,
+                8,
+                4));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                1,
+                numberPerDay++,
+                15,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                1,
+                numberPerDay,
+                12,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FULL_BACK).get(0),
+                2,
+                numberPerDay++,
+                8,
+                6));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                2,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LOWER_BACK).get(0),
+                2,
+                numberPerDay,
+                12,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.FRONT_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.LATERAL_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                3,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                3,
+                numberPerDay,
+                15,
+                4));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                4,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                4,
+                numberPerDay,
+                10,
+                3));
+
+
+        numberPerDay = 1;
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.HAMSTRINGS).get(0),
+                5,
+                numberPerDay++,
+                8,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CALVES).get(0),
+                5,
+                numberPerDay++,
+                15,
+                3));
+
+        save(new WorkoutInfo(
+                userId,
+                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.ABS).get(0),
+                5,
+                numberPerDay,
+                12,
+                4));
     }
 
 }

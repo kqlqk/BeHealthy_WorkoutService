@@ -7,11 +7,7 @@ import java.util.List;
 
 @Service
 public interface WorkoutInfoService {
-    WorkoutInfo getById(long id);
-
     List<WorkoutInfo> getByUserId(long userId);
-
-    void deleteByUserId(long userId);
 
     boolean existsByUserId(long userId);
 

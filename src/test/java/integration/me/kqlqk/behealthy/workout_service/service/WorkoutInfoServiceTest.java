@@ -1,14 +1,21 @@
 package integration.me.kqlqk.behealthy.workout_service.service;
 
 import annotations.ServiceTest;
+import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
+import me.kqlqk.behealthy.workout_service.enums.Gender;
+import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import me.kqlqk.behealthy.workout_service.service.impl.WorkoutInfoServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ServiceTest
 public class WorkoutInfoServiceTest {
@@ -20,6 +27,9 @@ public class WorkoutInfoServiceTest {
 
     @Autowired
     private WorkoutInfoRepository workoutInfoRepository;
+
+    @MockBean
+    private ConditionClient conditionClient;
 
     @Test
     public void save_shouldSaveEntityToDb() {
@@ -40,38 +50,49 @@ public class WorkoutInfoServiceTest {
     }
 
     @Test
-    public void generateAndSaveUpperLowerBodySplit_shouldGenerateAndSaveUpperLowerBodySplit() {
+    public void generateAndSaveWorkout_shouldGenerateAnsSaveWorkout() {
+        UserConditionDTO userConditionDTO = new UserConditionDTO(1, 2, Gender.MALE);
+        when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
+
+        workoutInfoService.generateAndSaveWorkout(2, 1);
+        List<WorkoutInfo> workoutInfos = workoutInfoService.getByUserId(2);
+        assertThat(workoutInfos).hasSize(6);
+        for (WorkoutInfo workoutInfo : workoutInfos) {
+            assertThat(workoutInfo.getWorkoutsPerWeek() == 1).isTrue();
+        }
         workoutInfoRepository.deleteAll();
-        int size = workoutInfoService.getByUserId(1).size();
 
-        workoutInfoService.generateAndSaveUpperLowerBodySplit(1);
 
-        int newSize = workoutInfoService.getByUserId(1).size();
-
-        assertThat(newSize).isGreaterThan(size);
-    }
-
-    @Test
-    public void generateAndSavePushPullLegsSplit_shouldGenerateAndSavePushPullLegsSplit() {
+        workoutInfoService.generateAndSaveWorkout(2, 2);
+        List<WorkoutInfo> workoutInfos2 = workoutInfoService.getByUserId(2);
+        assertThat(workoutInfos2).hasSize(9);
+        for (WorkoutInfo workoutInfo : workoutInfos2) {
+            assertThat(workoutInfo.getWorkoutsPerWeek() == 2).isTrue();
+        }
         workoutInfoRepository.deleteAll();
-        int size = workoutInfoService.getByUserId(1).size();
 
-        workoutInfoService.generateAndSavePushPullLegsSplit(1);
-
-        int newSize = workoutInfoService.getByUserId(1).size();
-
-        assertThat(newSize).isGreaterThan(size);
-    }
-
-    @Test
-    public void generateAndSave4DaysSplit_shouldGenerateAndSave4DaysSplit() {
+        workoutInfoService.generateAndSaveWorkout(2, 3);
+        List<WorkoutInfo> workoutInfos3 = workoutInfoService.getByUserId(2);
+        assertThat(workoutInfos3).hasSize(14);
+        for (WorkoutInfo workoutInfo : workoutInfos3) {
+            assertThat(workoutInfo.getWorkoutsPerWeek() == 3).isTrue();
+        }
         workoutInfoRepository.deleteAll();
-        int size = workoutInfoService.getByUserId(1).size();
 
-        workoutInfoService.generateAndSave4DaysSplit(1);
+        workoutInfoService.generateAndSaveWorkout(2, 4);
+        List<WorkoutInfo> workoutInfos4 = workoutInfoService.getByUserId(2);
+        assertThat(workoutInfos4).hasSize(21);
+        for (WorkoutInfo workoutInfo : workoutInfos4) {
+            assertThat(workoutInfo.getWorkoutsPerWeek() == 4).isTrue();
+        }
+        workoutInfoRepository.deleteAll();
 
-        int newSize = workoutInfoService.getByUserId(1).size();
-
-        assertThat(newSize).isGreaterThan(size);
+        workoutInfoService.generateAndSaveWorkout(2, 5);
+        List<WorkoutInfo> workoutInfos5 = workoutInfoService.getByUserId(2);
+        assertThat(workoutInfos5).hasSize(21);
+        for (WorkoutInfo workoutInfo : workoutInfos5) {
+            assertThat(workoutInfo.getWorkoutsPerWeek() == 5).isTrue();
+        }
+        workoutInfoRepository.deleteAll();
     }
 }

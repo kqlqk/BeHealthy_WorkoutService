@@ -18,6 +18,8 @@ create table workout_info
     workout_day    int       not null,
     number_per_day int       not null,
     exercise_id    int       not null,
+    reps           int       not null,
+    sets           int       not null,
 
     primary key (id),
 
