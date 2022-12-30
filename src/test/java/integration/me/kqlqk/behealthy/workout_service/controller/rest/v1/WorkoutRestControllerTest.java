@@ -6,12 +6,16 @@ import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
 import me.kqlqk.behealthy.workout_service.enums.Gender;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.model.Exercise;
+import me.kqlqk.behealthy.workout_service.service.ExerciseService;
+import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -26,6 +30,12 @@ public class WorkoutRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WorkoutInfoService workoutInfoService;
+
+    @Autowired
+    private ExerciseService exerciseService;
 
     @Test
     public void getWorkout_shouldReturnWorkoutList() throws Exception {
@@ -165,6 +175,20 @@ public class WorkoutRestControllerTest {
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
                 .andExpect(jsonPath("$.info", is("ExerciseNotFound | Was not provided 'name' or 'muscleGroup'")));
+    }
+
+    @Test
+    public void updateWorkoutWithAlternativeExercise_shouldUpdateWorkoutWithAlternativeExercise() throws Exception {
+        Exercise toChange = exerciseService.getByName("seated dumbbell press");
+
+        mockMvc.perform(put("/api/v1/workout/alternative")
+                        .param("userId", "1")
+                        .param("exerciseNameToChange", "seated dumbbell press"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        workoutInfoService.getByUserId(1).forEach(workoutInfo ->
+                assertThat(workoutInfo.getExercise().getId()).isNotEqualTo(toChange.getId()));
     }
 
 }

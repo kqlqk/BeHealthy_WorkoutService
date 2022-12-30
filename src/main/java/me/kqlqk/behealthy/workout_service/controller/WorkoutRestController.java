@@ -75,4 +75,19 @@ public class WorkoutRestController {
             return ResponseEntity.ok(exerciseService.getByMuscleGroup(MuscleGroup.valueOf(muscleGroup.toUpperCase())));
         }
     }
+
+    @PutMapping("/workout/alternative")
+    public ResponseEntity<?> updateWorkoutWithAlternativeExercise(@RequestParam long userId,
+                                                                  @RequestParam String exerciseNameToChange) {
+        if (!workoutInfoService.existsByUserId(userId)) {
+            throw new WorkoutNotFoundException("User's workout with userId = " + userId + " not found");
+        }
+        if (exerciseService.getByName(exerciseNameToChange) == null) {
+            throw new ExerciseNotFoundException("There is no exercise with name = " + exerciseNameToChange);
+        }
+
+        workoutInfoService.updateWorkoutWithAlternativeExercise(userId, exerciseService.getByName(exerciseNameToChange));
+
+        return ResponseEntity.ok().build();
+    }
 }
