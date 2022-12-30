@@ -2,6 +2,7 @@ package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.repository.ExerciseRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
@@ -48,5 +49,18 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Exercise> getAlternative(@NonNull Exercise exercise) {
+        if (exercise.getAlternativeId() == null) {
+            throw new ExerciseNotFoundException("There are no alternative exercises for " + exercise.getName());
+        }
+
+        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exercise.getAlternativeId());
+
+        alternatives.removeIf(alt -> alt.getId() == exercise.getId());
+
+        return alternatives;
     }
 }

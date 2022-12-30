@@ -3,10 +3,11 @@ drop table if exists exercises;
 
 create table exercises
 (
-    id           bigserial   not null unique,
-    name         varchar(50) not null unique,
-    description  text        not null,
-    muscle_group varchar(50) not null,
+    id             bigserial   not null unique,
+    name           varchar(50) not null unique,
+    description    text        not null,
+    muscle_group   varchar(50) not null,
+    alternative_id int,
 
     primary key (id)
 );

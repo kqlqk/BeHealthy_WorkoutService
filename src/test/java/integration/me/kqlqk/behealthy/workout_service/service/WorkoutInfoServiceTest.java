@@ -3,7 +3,9 @@ package integration.me.kqlqk.behealthy.workout_service.service;
 import annotations.ServiceTest;
 import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.enums.Gender;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ServiceTest
@@ -47,6 +50,23 @@ public class WorkoutInfoServiceTest {
 
 
         assertThat(updatedSize).isGreaterThan(size);
+    }
+
+    @Test
+    public void updateWorkoutWithAlternativeExercise_shouldUpdateUserWorkoutWithAlternativeExercise() {
+        Exercise toChange = exerciseService.getByName("seated dumbbell press");
+
+        workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange);
+
+        workoutInfoService.getByUserId(1).forEach(workoutInfo ->
+                assertThat(workoutInfo.getExercise().getId()).isNotEqualTo(toChange.getId()));
+    }
+
+    @Test
+    public void updateWorkoutWithAlternativeExercise_shouldThrowException() {
+        Exercise toChange = exerciseService.getByName("smith machine seated press");
+
+        assertThrows(ExerciseNotFoundException.class, () -> workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange));
     }
 
     @Test

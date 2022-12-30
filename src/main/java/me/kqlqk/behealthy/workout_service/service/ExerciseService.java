@@ -15,4 +15,6 @@ public interface ExerciseService {
     List<Exercise> getByMuscleGroup(MuscleGroup muscleGroup);
 
     List<Exercise> getSpecificAmountOfMuscleGroup(int amount, MuscleGroup muscleGroup);
+
+    List<Exercise> getAlternative(Exercise exercise);
 }

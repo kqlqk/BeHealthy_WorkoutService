@@ -1,5 +1,6 @@
 package me.kqlqk.behealthy.workout_service.service;
 
+import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,8 @@ public interface WorkoutInfoService {
     boolean existsByUserId(long userId);
 
     void save(WorkoutInfo workoutInfo);
+
+    void updateWorkoutWithAlternativeExercise(long userId, Exercise toChange);
 
     void generateAndSaveWorkout(long userId, int workoutsPerWeek);
 }

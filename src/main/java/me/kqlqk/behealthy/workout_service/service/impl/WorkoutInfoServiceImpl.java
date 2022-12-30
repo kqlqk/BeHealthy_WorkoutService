@@ -6,6 +6,7 @@ import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
@@ -56,6 +57,38 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     @Override
     public void save(@NonNull WorkoutInfo workoutInfo) {
         workoutInfoRepository.save(workoutInfo);
+    }
+
+    private void saveListOfWorkout(List<WorkoutInfo> workoutInfos) {
+        for (WorkoutInfo workoutInfo : workoutInfos) {
+            save(workoutInfo);
+        }
+    }
+
+    @Override
+    public void updateWorkoutWithAlternativeExercise(long userId, @NonNull Exercise toChange) {
+        if (userId < 1) {
+            throw new WorkoutNotFoundException("userId should be > 1");
+        }
+
+        List<WorkoutInfo> workout = getByUserId(userId);
+        List<Exercise> alternatives = exerciseService.getAlternative(toChange);
+
+        if (workout.stream()
+                .noneMatch(w -> w.getExercise().getId() == toChange.getId())) {
+            throw new ExerciseNotFoundException("User's workout hasn't exercise with name = " + toChange.getName());
+        }
+
+
+        Exercise alternativeExercise = alternatives.get((int) (Math.random() * alternatives.size()));
+
+        for (WorkoutInfo workoutInfo : workout) {
+            if (workoutInfo.getExercise().getId() == toChange.getId()) {
+                workoutInfo.setExercise(alternativeExercise);
+            }
+        }
+
+        saveListOfWorkout(workout);
     }
 
     @Override
