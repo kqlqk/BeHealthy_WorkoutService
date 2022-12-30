@@ -25,4 +25,7 @@ public class Exercise {
     @Enumerated(EnumType.STRING)
     @Column(name = "muscle_group", nullable = false)
     private MuscleGroup muscleGroup;
+
+    @Column(name = "alternative_id")
+    private Integer alternativeId;
 }
