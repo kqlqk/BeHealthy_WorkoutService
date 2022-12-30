@@ -1,16 +1,14 @@
 package me.kqlqk.behealthy.workout_service.model;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "exercises", schema = "public", catalog = "workoutservicedb")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Exercise {
     @Id

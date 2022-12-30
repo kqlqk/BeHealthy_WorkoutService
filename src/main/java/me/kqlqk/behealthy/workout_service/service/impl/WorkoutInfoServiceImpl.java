@@ -3,6 +3,8 @@ package me.kqlqk.behealthy.workout_service.service.impl;
 import lombok.NonNull;
 import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
@@ -58,6 +60,13 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public void generateAndSaveWorkout(long userId, int workoutsPerWeek) {
+        if (userId < 1) {
+            throw new WorkoutNotFoundException("userId should be > 1");
+        }
+        if (workoutsPerWeek < 1 || workoutsPerWeek > 5) {
+            throw new WorkoutNotFoundException("workoutsPerWeek should be between 1 and 5");
+        }
+
         UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
 
         switch (userConditionDTO.getGender()) {
