@@ -46,12 +46,14 @@ public class WorkoutRestController {
     }
 
     @PutMapping("/workout")
-    public void updateWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
+    public ResponseEntity<?> updateWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
         if (!workoutInfoService.existsByUserId(userId)) {
             throw new WorkoutNotFoundException("User's workout with userId = " + userId + " not found");
         }
 
         workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/exercises")
