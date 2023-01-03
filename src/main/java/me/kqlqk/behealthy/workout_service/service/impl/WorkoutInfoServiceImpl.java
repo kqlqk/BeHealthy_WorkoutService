@@ -37,8 +37,8 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
         int maxWorkoutsPerWeek = 1;
         for (WorkoutInfo workoutInfo : workoutInfos) {
-            if (workoutInfo.getWorkoutDay() > maxWorkoutsPerWeek) {
-                maxWorkoutsPerWeek = workoutInfo.getWorkoutDay();
+            if (workoutInfo.getDay() > maxWorkoutsPerWeek) {
+                maxWorkoutsPerWeek = workoutInfo.getDay();
             }
         }
 

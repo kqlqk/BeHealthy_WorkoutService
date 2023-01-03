@@ -40,7 +40,7 @@ public class WorkoutInfoServiceTest {
 
         WorkoutInfo workoutInfo = new WorkoutInfo();
         workoutInfo.setUserId(1);
-        workoutInfo.setWorkoutDay(1);
+        workoutInfo.setDay(1);
         workoutInfo.setExercise(exerciseService.getById(1));
         workoutInfo.setNumberPerDay(1);
 

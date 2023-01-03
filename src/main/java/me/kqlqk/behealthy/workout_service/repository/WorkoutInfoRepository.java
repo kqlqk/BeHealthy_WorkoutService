@@ -12,7 +12,7 @@ public interface WorkoutInfoRepository extends JpaRepository<WorkoutInfo, Long> 
 
     List<WorkoutInfo> findByUserId(long userId);
 
-    List<WorkoutInfo> findByUserIdAndWorkoutDay(long userId, int workoutDay);
+    List<WorkoutInfo> findByUserIdAndDay(long userId, int day);
 
     boolean existsByUserId(long userId);
 }

@@ -18,8 +18,8 @@ public class WorkoutInfo {
     @Column(name = "user_id", nullable = false)
     private long userId;
 
-    @Column(name = "workout_day", nullable = false)
-    private int workoutDay;
+    @Column(name = "day", nullable = false)
+    private int day;
 
     @Column(name = "number_per_day", nullable = false)
     private int numberPerDay;
@@ -37,10 +37,10 @@ public class WorkoutInfo {
     @Transient
     private int workoutsPerWeek;
 
-    public WorkoutInfo(long userId, Exercise exercise, int workoutDay, int numberPerDay, int reps, int sets) {
+    public WorkoutInfo(long userId, Exercise exercise, int day, int numberPerDay, int reps, int sets) {
         this.userId = userId;
         this.exercise = exercise;
-        this.workoutDay = workoutDay;
+        this.day = day;
         this.numberPerDay = numberPerDay;
         this.reps = reps;
         this.sets = sets;

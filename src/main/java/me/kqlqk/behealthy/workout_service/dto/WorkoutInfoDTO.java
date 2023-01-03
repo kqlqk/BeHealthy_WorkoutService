@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WorkoutInfoDTO {
     private long id;
-    private int workoutDay;
+    private int day;
     private int numberPerDay;
     private Exercise exercise;
     private int workoutsPerWeek;
@@ -27,7 +27,7 @@ public class WorkoutInfoDTO {
         for (WorkoutInfo workoutInfo : workoutInfos) {
             WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO(
                     workoutInfo.getId(),
-                    workoutInfo.getWorkoutDay(),
+                    workoutInfo.getDay(),
                     workoutInfo.getNumberPerDay(),
                     workoutInfo.getExercise(),
                     workoutInfo.getWorkoutsPerWeek(),
