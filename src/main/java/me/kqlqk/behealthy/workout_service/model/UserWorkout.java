@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table(name = "user_workouts", schema = "public", catalog = "workoutservicedb")
 @Data
 @NoArgsConstructor
-public class UserWorkouts {
+public class UserWorkout {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -19,6 +19,7 @@ public class UserWorkouts {
     @Column(name = "exercise_name", nullable = false)
     private String exerciseName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "muscle_group", nullable = false)
     private MuscleGroup muscleGroup;
 
