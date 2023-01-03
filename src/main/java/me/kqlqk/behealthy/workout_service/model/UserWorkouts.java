@@ -33,4 +33,7 @@ public class UserWorkouts {
 
     @Column(name = "day", nullable = false)
     private int day;
+
+    @Column(name = "user_id", nullable = false)
+    private int userId;
 }
