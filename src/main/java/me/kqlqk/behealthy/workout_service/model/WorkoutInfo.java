@@ -28,10 +28,10 @@ public class WorkoutInfo {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @Column(name = "reps", nullable = false)
+    @Column(name = "exercise_reps", nullable = false)
     private int reps;
 
-    @Column(name = "sets", nullable = false)
+    @Column(name = "exercise_sets", nullable = false)
     private int sets;
 
     @Transient

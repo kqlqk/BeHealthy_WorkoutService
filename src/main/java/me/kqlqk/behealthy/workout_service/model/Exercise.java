@@ -16,7 +16,7 @@ public class Exercise {
     @Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
     private int id;
 
-    @Column(name = "name", unique = true, nullable = false, insertable = false, updatable = false)
+    @Column(name = "exercise_name", unique = true, nullable = false, insertable = false, updatable = false)
     private String name;
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
