@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface UserWorkoutRepository extends JpaRepository<UserWorkout, Long> {
     List<UserWorkout> getByUserId(long userId);
+
+    boolean existsByUserId(long userId);
+
+    boolean existsByExerciseName(String exerciseName);
 }
