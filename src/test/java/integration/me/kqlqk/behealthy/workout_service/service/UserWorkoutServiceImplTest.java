@@ -46,11 +46,26 @@ public class UserWorkoutServiceImplTest {
     @Test
     public void remove_shouldRemoveExerciseFromDb() {
         List<UserWorkout> oldWorkouts = userWorkoutService.getByUserId(1);
+        String existedNameForCurrentUser = "deadlift";
+        long existedIdForCurrentUser = oldWorkouts.get(0).getId();
 
-        userWorkoutService.remove(oldWorkouts.get(0).getId());
+        userWorkoutService.remove(1, existedIdForCurrentUser);
+        userWorkoutService.remove(1, existedNameForCurrentUser);
 
         List<UserWorkout> newWorkouts = userWorkoutService.getByUserId(1);
 
-        assertThat(newWorkouts).hasSize(oldWorkouts.size() - 1);
+        assertThat(newWorkouts).hasSize(oldWorkouts.size() - 2);
+    }
+
+    @Test
+    public void remove_shouldNotRemoveExerciseFromDb() {
+        List<UserWorkout> oldWorkouts = userWorkoutService.getByUserId(1);
+        int notExistedId = 999;
+
+        userWorkoutService.remove(1, notExistedId);
+
+        List<UserWorkout> newWorkouts = userWorkoutService.getByUserId(1);
+
+        assertThat(newWorkouts).hasSize(oldWorkouts.size());
     }
 }

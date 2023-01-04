@@ -11,5 +11,7 @@ public interface UserWorkoutService {
 
     void save(UserWorkout userWorkout);
 
-    void remove(long id);
+    void remove(long id, String exerciseName);
+
+    void remove(long userId, long exerciseId);
 }
