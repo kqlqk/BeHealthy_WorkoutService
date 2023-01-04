@@ -46,7 +46,7 @@ public class WorkoutRestControllerTest {
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].workoutDay").exists())
+                .andExpect(jsonPath("$[0].day").exists())
                 .andExpect(jsonPath("$[0].numberPerDay").exists())
                 .andExpect(jsonPath("$[0].exercise").isMap())
                 .andExpect(jsonPath("$[0].exercise.id").exists())
