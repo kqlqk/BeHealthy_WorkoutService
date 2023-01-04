@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ServiceTest
-public class WorkoutInfoServiceTest {
+public class WorkoutInfoServiceImplTest {
     @Autowired
     private WorkoutInfoServiceImpl workoutInfoService;
 

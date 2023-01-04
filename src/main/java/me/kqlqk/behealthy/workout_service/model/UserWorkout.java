@@ -32,7 +32,7 @@ public class UserWorkout {
     @Column(name = "number_per_day", nullable = false)
     private int numberPerDay;
 
-    @Column(name = "day", nullable = false)
+    @Column(name = "workout_day", nullable = false)
     private int day;
 
     @Column(name = "user_id", nullable = false)

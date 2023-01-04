@@ -2,6 +2,8 @@ delete
 from workout_info;
 delete
 from exercises;
+delete
+from user_workouts;
 
 insert into exercises(name, description, muscle_group, alternative_id)
 values ('seated dumbbell press',
@@ -279,6 +281,7 @@ values ('reverse grip dumbbells curl',
         E.g. https://www.youtube.com/watch?v=nRgxYX2Ve9w',
         'BICEPS_FOREARMS');
 
+
 insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
 values (1, 1, 1, 1, 8, 4);
 
@@ -290,3 +293,13 @@ values (1, 2, 1, 6, 6, 5);
 
 insert into workout_info(user_id, workout_day, number_per_day, exercise_id, reps, sets)
 values (1, 2, 2, 5, 10, 4);
+
+
+insert into user_workouts(exercise_name, muscle_group, reps, sets, workout_day, number_per_day, user_id)
+values ('bench press', 'CHEST_TRICEPS', 10, 3, 1, 1, 1);
+
+insert into user_workouts(exercise_name, muscle_group, reps, sets, workout_day, number_per_day, user_id)
+values ('deadlift', 'FULL_BACK', 7, 4, 1, 2, 1);
+
+insert into user_workouts(exercise_name, muscle_group, reps, sets, workout_day, number_per_day, user_id)
+values ('90 degree press', 'FRONT_DELTS', 10, 4, 1, 1, 2);
