@@ -41,7 +41,11 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
 
         List<UserWorkout> userWorkouts = getByUserId(userId);
 
-        remove(userId, userWorkouts.get(0).getId());
+        for (UserWorkout userWorkout : userWorkouts) {
+            if (userWorkout.getExerciseName().equalsIgnoreCase(exerciseName)) {
+                userWorkoutRepository.deleteById(userWorkout.getId());
+            }
+        }
     }
 
     @Override

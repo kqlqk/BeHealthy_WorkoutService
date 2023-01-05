@@ -1,6 +1,8 @@
 package me.kqlqk.behealthy.workout_service.exception.exceptions;
 
-public class ExerciseNotFoundException extends RuntimeException {
+import com.netflix.hystrix.exception.ExceptionNotWrappedByHystrix;
+
+public class ExerciseNotFoundException extends RuntimeException implements ExceptionNotWrappedByHystrix {
     private static final String EXERCISE_NOT_FOUND = "ExerciseNotFound";
 
     public ExerciseNotFoundException(String message) {
