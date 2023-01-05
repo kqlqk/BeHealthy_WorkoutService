@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,6 +47,17 @@ public class UserWorkoutRestControllerTest {
     }
 
     @Test
+    public void getUserWorkout_shouldReturnJsonWithException() throws Exception {
+        mockMvc.perform(get("/api/v1/user/workout")
+                        .param("userId", "99"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("WorkoutNotFound | User's with userId = 99 workout not found")));
+    }
+
+    @Test
     public void addExercise_shouldAddExerciseToDb() throws Exception {
         UserWorkoutDTO userWorkoutDTO = new UserWorkoutDTO();
         userWorkoutDTO.setExerciseName("new exercise");
@@ -74,6 +86,18 @@ public class UserWorkoutRestControllerTest {
     }
 
     @Test
+    public void addExercise_shouldReturnJsonWithException() throws Exception {
+        mockMvc.perform(post("/api/v1/user/workout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", "1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("Required request body is missing")));
+    }
+
+    @Test
     public void removeExercise_shouldRemoveExerciseFromDb() throws Exception {
         List<UserWorkout> oldWorkouts = userWorkoutService.getByUserId(1);
         String existedIdForCurrentUser = String.valueOf(oldWorkouts.get(0).getId());
@@ -94,5 +118,26 @@ public class UserWorkoutRestControllerTest {
         List<UserWorkout> newWorkouts = userWorkoutService.getByUserId(1);
 
         assertThat(newWorkouts).hasSize(oldWorkouts.size() - 2);
+    }
+
+    @Test
+    public void removeExercise_shouldReturnJsonWithException() throws Exception {
+        mockMvc.perform(delete("/api/v1/user/workout")
+                        .param("userId", "1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Provide 'exerciseId' or 'exerciseName'")));
+
+        mockMvc.perform(delete("/api/v1/user/workout")
+                        .param("userId", "1")
+                        .param("exerciseId", "1")
+                        .param("exerciseName", "random"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Provide only 1 filter")));
     }
 }
