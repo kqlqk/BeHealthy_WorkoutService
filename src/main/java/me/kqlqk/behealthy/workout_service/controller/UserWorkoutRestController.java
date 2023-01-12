@@ -35,9 +35,7 @@ public class UserWorkoutRestController {
     @PostMapping("/workout")
     public ResponseEntity<?> addExercise(@RequestParam long userId, @RequestBody UserWorkoutDTO userWorkoutDTO) {
         userWorkoutDTO.setUserId(userId);
-        UserWorkout userWorkout = UserWorkoutDTO.convertUserWorkoutDTOtoUserWorkout(userWorkoutDTO);
-
-        userWorkoutService.save(userWorkout);
+        userWorkoutService.save(userWorkoutDTO);
 
         return ResponseEntity.ok().build();
     }

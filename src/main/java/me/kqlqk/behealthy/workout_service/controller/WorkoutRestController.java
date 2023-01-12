@@ -1,5 +1,6 @@
 package me.kqlqk.behealthy.workout_service.controller;
 
+import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
 import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
@@ -88,7 +89,8 @@ public class WorkoutRestController {
             throw new ExerciseNotFoundException("There is no exercise with name = " + exerciseNameToChange);
         }
 
-        workoutInfoService.updateWorkoutWithAlternativeExercise(userId, exerciseService.getByName(exerciseNameToChange));
+        workoutInfoService.updateWorkoutWithAlternativeExercise(userId,
+                ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName(exerciseNameToChange)));
 
         return ResponseEntity.ok().build();
     }
