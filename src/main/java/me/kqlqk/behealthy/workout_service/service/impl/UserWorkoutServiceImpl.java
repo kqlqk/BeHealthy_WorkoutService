@@ -1,22 +1,29 @@
 package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
+import me.kqlqk.behealthy.workout_service.dto.UserWorkoutDTO;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.UserWorkoutException;
 import me.kqlqk.behealthy.workout_service.model.UserWorkout;
 import me.kqlqk.behealthy.workout_service.repository.UserWorkoutRepository;
 import me.kqlqk.behealthy.workout_service.service.UserWorkoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserWorkoutServiceImpl implements UserWorkoutService {
     private final UserWorkoutRepository userWorkoutRepository;
+    private final Validator validator;
 
     @Autowired
-    public UserWorkoutServiceImpl(UserWorkoutRepository userWorkoutRepository) {
+    public UserWorkoutServiceImpl(UserWorkoutRepository userWorkoutRepository, Validator validator) {
         this.userWorkoutRepository = userWorkoutRepository;
+        this.validator = validator;
     }
 
     @Override
@@ -25,8 +32,14 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
     }
 
     @Override
-    public void save(@NonNull UserWorkout userWorkout) {
-        userWorkoutRepository.save(userWorkout);
+    public void save(@NonNull UserWorkoutDTO userWorkoutDTO) {
+        Set<ConstraintViolation<UserWorkoutDTO>> constraintViolationsName = validator.validate(userWorkoutDTO);
+
+        if (!constraintViolationsName.isEmpty()) {
+            throw new UserWorkoutException(constraintViolationsName.iterator().next().getMessage());
+        }
+
+        userWorkoutRepository.save(UserWorkoutDTO.convertUserWorkoutDTOtoUserWorkout(userWorkoutDTO));
     }
 
     @Override

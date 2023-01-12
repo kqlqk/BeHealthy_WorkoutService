@@ -1,11 +1,13 @@
 package integration.me.kqlqk.behealthy.workout_service.service;
 
 import annotations.ServiceTest;
+import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
 import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
+import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
 import me.kqlqk.behealthy.workout_service.enums.Gender;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.conditionService.ExerciseException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
-import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
@@ -36,27 +38,30 @@ public class WorkoutInfoServiceImplTest {
 
     @Test
     public void save_shouldSaveEntityToDb() {
-        int size = workoutInfoService.getByUserId(1).size();
+        int oldSize = workoutInfoService.getByUserId(1).size();
 
-        WorkoutInfo workoutInfo = new WorkoutInfo();
-        workoutInfo.setUserId(1);
-        workoutInfo.setDay(1);
-        workoutInfo.setExercise(exerciseService.getById(1));
-        workoutInfo.setNumberPerDay(1);
+        WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO();
+        workoutInfoDTO.setUserId(1);
+        workoutInfoDTO.setDay(1);
+        workoutInfoDTO.setExercise(exerciseService.getById(1));
+        workoutInfoDTO.setNumberPerDay(1);
 
-        workoutInfoService.save(workoutInfo);
+        workoutInfoService.save(workoutInfoDTO);
 
-        int updatedSize = workoutInfoService.getByUserId(1).size();
+        int newSize = workoutInfoService.getByUserId(1).size();
 
-
-        assertThat(updatedSize).isGreaterThan(size);
+        assertThat(newSize).isEqualTo(oldSize + 1);
     }
 
     @Test
     public void updateWorkoutWithAlternativeExercise_shouldUpdateUserWorkoutWithAlternativeExercise() {
-        Exercise toChange = exerciseService.getByName("seated dumbbell press");
+        ExerciseDTO toChange = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("seated dumbbell press"));
+
+        workoutInfoService.getByUserId(1).forEach(System.out::println);
 
         workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange);
+
+        workoutInfoService.getByUserId(1).forEach(System.out::println);
 
         workoutInfoService.getByUserId(1).forEach(workoutInfo ->
                 assertThat(workoutInfo.getExercise().getId()).isNotEqualTo(toChange.getId()));
@@ -64,9 +69,16 @@ public class WorkoutInfoServiceImplTest {
 
     @Test
     public void updateWorkoutWithAlternativeExercise_shouldThrowException() {
-        Exercise toChange = exerciseService.getByName("smith machine seated press");
+        ExerciseDTO toChange = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("seated dumbbell press"));
+        String badName = "-";
+        toChange.setName(badName);
 
-        assertThrows(ExerciseNotFoundException.class, () -> workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange));
+        assertThrows(ExerciseException.class, () -> workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange));
+
+
+        ExerciseDTO toChange2 = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("smith machine seated press"));
+
+        assertThrows(ExerciseNotFoundException.class, () -> workoutInfoService.updateWorkoutWithAlternativeExercise(1, toChange2));
     }
 
     @Test

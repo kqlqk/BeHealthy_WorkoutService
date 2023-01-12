@@ -37,11 +37,21 @@ public class WorkoutInfo {
     @Transient
     private int workoutsPerWeek;
 
-    public WorkoutInfo(long userId, Exercise exercise, int day, int numberPerDay, int reps, int sets) {
+    public WorkoutInfo(long userId, int day, int numberPerDay, Exercise exercise, int reps, int sets) {
         this.userId = userId;
         this.exercise = exercise;
         this.day = day;
         this.numberPerDay = numberPerDay;
+        this.reps = reps;
+        this.sets = sets;
+    }
+
+    public WorkoutInfo(long id, long userId, int day, int numberPerDay, Exercise exercise, int reps, int sets) {
+        this.id = id;
+        this.userId = userId;
+        this.day = day;
+        this.numberPerDay = numberPerDay;
+        this.exercise = exercise;
         this.reps = reps;
         this.sets = sets;
     }

@@ -1,6 +1,7 @@
 package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
+import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
@@ -40,6 +41,10 @@ public class ExerciseServiceImpl implements ExerciseService {
         List<Exercise> exercises = getByMuscleGroup(muscleGroup);
         List<Exercise> result = new ArrayList<>();
 
+        if (exercises.size() < amount) {
+            throw new ExerciseNotFoundException("There's only " + exercises.size() + " exercises");
+        }
+
         int count = 0;
         while (count < amount) {
             int id = (int) (Math.random() * exercises.size());
@@ -52,14 +57,14 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<Exercise> getAlternative(@NonNull Exercise exercise) {
-        if (exercise.getAlternativeId() == null) {
-            throw new ExerciseNotFoundException("There are no alternative exercises for " + exercise.getName());
+    public List<Exercise> getAlternative(@NonNull ExerciseDTO exerciseDTO) {
+        if (exerciseDTO.getAlternativeId() == null) {
+            throw new ExerciseNotFoundException("There are no alternative exercises for " + exerciseDTO.getName());
         }
 
-        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exercise.getAlternativeId());
+        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exerciseDTO.getAlternativeId());
 
-        alternatives.removeIf(alt -> alt.getId() == exercise.getId());
+        alternatives.removeIf(alt -> alt.getId() == exerciseDTO.getId());
 
         return alternatives;
     }

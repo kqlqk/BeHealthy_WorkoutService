@@ -1,6 +1,7 @@
 package integration.me.kqlqk.behealthy.workout_service.service;
 
 import annotations.ServiceTest;
+import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
 import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
@@ -31,8 +32,13 @@ public class ExerciseServiceImplTest {
     }
 
     @Test
+    public void getSpecificAmountOfMuscleGroup_shouldThrowException() {
+        assertThrows(ExerciseNotFoundException.class, () -> exerciseService.getSpecificAmountOfMuscleGroup(99, MuscleGroup.CHEST_TRICEPS));
+    }
+
+    @Test
     public void getAlternative_shouldReturnListWithAlternativeExercises() {
-        Exercise e = exerciseService.getByName("dips");
+        ExerciseDTO e = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("dips"));
 
         List<Exercise> exercises = exerciseService.getAlternative(e);
 
@@ -43,7 +49,7 @@ public class ExerciseServiceImplTest {
 
     @Test
     public void getAlternative_shouldReturnException() {
-        Exercise e = exerciseService.getByName("machine fly");
+        ExerciseDTO e = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("machine fly"));
 
         assertThrows(ExerciseNotFoundException.class, () -> exerciseService.getAlternative(e));
     }
