@@ -8,11 +8,7 @@ import java.util.List;
 
 @Repository
 public interface WorkoutInfoRepository extends JpaRepository<WorkoutInfo, Long> {
-    WorkoutInfo findById(long id);
-
     List<WorkoutInfo> findByUserId(long userId);
-
-    List<WorkoutInfo> findByUserIdAndDay(long userId, int day);
 
     boolean existsByUserId(long userId);
 }

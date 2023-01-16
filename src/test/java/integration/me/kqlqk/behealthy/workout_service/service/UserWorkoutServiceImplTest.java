@@ -48,29 +48,28 @@ public class UserWorkoutServiceImplTest {
 
     @Test
     public void save_shouldThrowException() {
-        UserWorkoutDTO userWorkoutDTO = new UserWorkoutDTO();
         String badName = " ";
-        userWorkoutDTO.setExerciseName(badName);
-        userWorkoutDTO.setUserId(1);
-        userWorkoutDTO.setDay(1);
-        userWorkoutDTO.setNumberPerDay(1);
-        userWorkoutDTO.setMuscleGroup(MuscleGroup.ABS);
-        userWorkoutDTO.setReps(10);
-        userWorkoutDTO.setSets(4);
-
+        UserWorkoutDTO userWorkoutDTO = new UserWorkoutDTO(badName, MuscleGroup.ABS, 10, 4, 1, 1, 1);
         assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO));
 
-
-        UserWorkoutDTO userWorkoutDTO2 = new UserWorkoutDTO();
-        userWorkoutDTO2.setExerciseName("some exercise");
-        userWorkoutDTO2.setUserId(1);
-        userWorkoutDTO2.setDay(1);
-        userWorkoutDTO2.setNumberPerDay(1);
-        userWorkoutDTO2.setMuscleGroup(null);
-        userWorkoutDTO2.setReps(10);
-        userWorkoutDTO2.setSets(4);
-
+        UserWorkoutDTO userWorkoutDTO2 = new UserWorkoutDTO("some exercise", null, 10, 4, 1, 1, 1);
         assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO2));
+
+        int badReps = -1;
+        UserWorkoutDTO userWorkoutDTO3 = new UserWorkoutDTO("some exercise", MuscleGroup.ABS, badReps, 4, 1, 1, 1);
+        assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO3));
+
+        int badSets = 0;
+        UserWorkoutDTO userWorkoutDTO4 = new UserWorkoutDTO("some exercise", MuscleGroup.ABS, 10, badSets, 1, 1, 1);
+        assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO4));
+
+        int badNumberPerDay = -4;
+        UserWorkoutDTO userWorkoutDTO5 = new UserWorkoutDTO("some exercise", MuscleGroup.ABS, 10, 4, badNumberPerDay, 1, 1);
+        assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO5));
+
+        int badDay = 100;
+        UserWorkoutDTO userWorkoutDTO6 = new UserWorkoutDTO("some exercise", MuscleGroup.ABS, 10, 4, 1, badDay, 1);
+        assertThrows(UserWorkoutException.class, () -> userWorkoutService.save(userWorkoutDTO6));
     }
 
     @Test
