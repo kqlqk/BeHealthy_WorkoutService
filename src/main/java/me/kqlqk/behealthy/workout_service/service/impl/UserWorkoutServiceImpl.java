@@ -43,28 +43,12 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
     }
 
     @Override
-    public void remove(long userId, @NonNull String exerciseName) {
-        if (!userWorkoutRepository.existsByUserId(userId)) {
-            throw new ExerciseNotFoundException("Exercises for user with userId = " + userId + " not found");
-        }
-
-        if (!userWorkoutRepository.existsByExerciseName(exerciseName)) {
-            throw new ExerciseNotFoundException("Exercise with name = " + exerciseName + " not found");
-        }
-
-        List<UserWorkout> userWorkouts = getByUserId(userId);
-
-        for (UserWorkout userWorkout : userWorkouts) {
-            if (userWorkout.getExerciseName().equalsIgnoreCase(exerciseName)) {
-                userWorkoutRepository.deleteById(userWorkout.getId());
-            }
-        }
-    }
-
-    @Override
     public void remove(long userId, long exerciseId) {
         if (!userWorkoutRepository.existsByUserId(userId)) {
             throw new ExerciseNotFoundException("Exercises for user with userId = " + userId + " not found");
+        }
+        if (!userWorkoutRepository.existsById(exerciseId)) {
+            throw new ExerciseNotFoundException("Exercise with exerciseId = " + exerciseId + " for user with userId = " + userId + " not found");
         }
 
         List<UserWorkout> userWorkouts = getByUserId(userId);

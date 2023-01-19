@@ -16,6 +16,7 @@ import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -67,6 +68,11 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
+    public void deleteByUserId(long userId) {
+        workoutInfoRepository.deleteByUserId(userId);
+    }
+
+    @Override
     public void save(@NonNull WorkoutInfoDTO workoutInfoDTO) {
         workoutInfoRepository.save(workoutInfoDTO.convertToWorkoutInfo());
     }
@@ -107,12 +113,16 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
+    @Transactional
     public void generateAndSaveWorkout(long userId, int workoutsPerWeek) {
         if (userId < 1) {
             throw new WorkoutNotFoundException("userId should be > 1");
         }
         if (workoutsPerWeek < 1 || workoutsPerWeek > 5) {
             throw new WorkoutNotFoundException("workoutsPerWeek should be between 1 and 5");
+        }
+        if (existsByUserId(userId)) {
+            deleteByUserId(userId);
         }
 
         UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);

@@ -13,6 +13,8 @@ public interface WorkoutInfoService {
 
     boolean existsByUserId(long userId);
 
+    void deleteByUserId(long userId);
+
     void save(WorkoutInfoDTO workoutInfoDTO);
 
     void updateWorkoutWithAlternativeExercise(long userId, ExerciseDTO toChange);
