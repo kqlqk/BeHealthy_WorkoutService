@@ -11,4 +11,6 @@ public interface WorkoutInfoRepository extends JpaRepository<WorkoutInfo, Long> 
     List<WorkoutInfo> findByUserId(long userId);
 
     boolean existsByUserId(long userId);
+
+    void deleteByUserId(long userId);
 }
