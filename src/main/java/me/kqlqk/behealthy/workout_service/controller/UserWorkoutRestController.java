@@ -1,7 +1,6 @@
 package me.kqlqk.behealthy.workout_service.controller;
 
 import me.kqlqk.behealthy.workout_service.dto.UserWorkoutDTO;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.UserWorkout;
 import me.kqlqk.behealthy.workout_service.service.UserWorkoutService;
@@ -42,20 +41,8 @@ public class UserWorkoutRestController {
 
     @DeleteMapping("/workout")
     public ResponseEntity<?> removeExercise(@RequestParam long userId,
-                                            @RequestParam(required = false) Long exerciseId,
-                                            @RequestParam(required = false) String exerciseName) {
-
-        if (exerciseId == null && exerciseName == null) {
-            throw new ExerciseNotFoundException("Provide 'exerciseId' or 'exerciseName'");
-        } else if (exerciseId != null && exerciseName != null) {
-            throw new ExerciseNotFoundException("Provide only 1 filter");
-        }
-
-        if (exerciseId != null) {
-            userWorkoutService.remove(userId, exerciseId);
-        } else {
-            userWorkoutService.remove(userId, exerciseName);
-        }
+                                            @RequestParam Long exerciseId) {
+        userWorkoutService.remove(userId, exerciseId);
 
         return ResponseEntity.ok().build();
     }

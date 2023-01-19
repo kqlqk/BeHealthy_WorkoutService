@@ -61,19 +61,23 @@ public class WorkoutRestController {
     public ResponseEntity<?> getExercisesByParams(@RequestParam(required = false) String name,
                                                   @RequestParam(required = false) String muscleGroup) {
         if (name == null && muscleGroup == null) {
-            throw new ExerciseNotFoundException("Was not provided 'name' or 'muscleGroup'");
+            throw new ExerciseNotFoundException("Was not provided 'name' or 'muscleGroup' filter");
         }
         if (name != null && muscleGroup != null) {
             throw new ExerciseNotFoundException("Provide only 1 filter");
         }
 
         if (name != null) {
+            if (exerciseService.getByName(name) == null) {
+                throw new ExerciseNotFoundException("Exercise with name = " + name + " not found");
+            }
+
             return ResponseEntity.ok(exerciseService.getByName(name));
         } else {
             Stream.of(MuscleGroup.values())
                     .filter(m -> m.name().equalsIgnoreCase(muscleGroup))
                     .findAny()
-                    .orElseThrow(() -> new ExerciseNotFoundException("Muscle group not found"));
+                    .orElseThrow(() -> new ExerciseNotFoundException("Muscle group '" + muscleGroup + "' not found"));
 
             return ResponseEntity.ok(exerciseService.getByMuscleGroup(MuscleGroup.valueOf(muscleGroup.toUpperCase())));
         }

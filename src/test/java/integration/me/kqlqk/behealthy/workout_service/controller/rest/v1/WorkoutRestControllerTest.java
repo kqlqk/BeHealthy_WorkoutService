@@ -174,7 +174,7 @@ public class WorkoutRestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Was not provided 'name' or 'muscleGroup'")));
+                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Was not provided 'name' or 'muscleGroup' filter")));
     }
 
     @Test

@@ -109,15 +109,9 @@ public class UserWorkoutRestControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        mockMvc.perform(delete("/api/v1/user/workout")
-                        .param("userId", "1")
-                        .param("exerciseName", existedNameForCurrentUser))
-                .andDo(print())
-                .andExpect(status().isOk());
-
         List<UserWorkout> newWorkouts = userWorkoutService.getByUserId(1);
 
-        assertThat(newWorkouts).hasSize(oldWorkouts.size() - 2);
+        assertThat(newWorkouts).hasSize(oldWorkouts.size() - 1);
     }
 
     @Test
@@ -128,16 +122,14 @@ public class UserWorkoutRestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Provide 'exerciseId' or 'exerciseName'")));
+                .andExpect(jsonPath("$.info", is("Required request parameter 'exerciseId' for method parameter type Long is not present")));
 
         mockMvc.perform(delete("/api/v1/user/workout")
-                        .param("userId", "1")
-                        .param("exerciseId", "1")
-                        .param("exerciseName", "random"))
+                        .param("userId", "1"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Provide only 1 filter")));
+                .andExpect(jsonPath("$.info", is("Required request parameter 'exerciseId' for method parameter type Long is not present")));
     }
 }
