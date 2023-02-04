@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "workout_info", schema = "public", catalog = "workoutservicedb")
+@Table(name = "workout_info", schema = "public", catalog = "workout_service_db")
 @Data
 @NoArgsConstructor
 public class WorkoutInfo {
