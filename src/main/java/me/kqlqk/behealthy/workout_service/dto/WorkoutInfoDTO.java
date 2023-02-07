@@ -56,7 +56,6 @@ public class WorkoutInfoDTO {
                     workoutInfo.getDay(),
                     workoutInfo.getNumberPerDay(),
                     workoutInfo.getExercise(),
-                    workoutInfo.getWorkoutsPerWeek(),
                     workoutInfo.getReps(),
                     workoutInfo.getSets());
 
