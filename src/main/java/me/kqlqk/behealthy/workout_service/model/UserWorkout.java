@@ -2,12 +2,12 @@ package me.kqlqk.behealthy.workout_service.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "user_workouts", schema = "public", catalog = "workout_service_db")
+@Table(name = "user_workout", schema = "public", catalog = "workout_service_db")
 @Data
 @NoArgsConstructor
 public class UserWorkout {
@@ -23,11 +23,11 @@ public class UserWorkout {
     @Column(name = "muscle_group", nullable = false)
     private MuscleGroup muscleGroup;
 
-    @Column(name = "exercise_reps", nullable = false)
-    private int reps;
+    @Column(name = "exercise_rep", nullable = false)
+    private int rep;
 
-    @Column(name = "exercise_sets", nullable = false)
-    private int sets;
+    @Column(name = "exercise_set", nullable = false)
+    private int set;
 
     @Column(name = "number_per_day", nullable = false)
     private int numberPerDay;

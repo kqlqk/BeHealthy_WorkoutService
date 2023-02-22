@@ -1,18 +1,18 @@
 package me.kqlqk.behealthy.workout_service.controller;
 
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
+import me.kqlqk.behealthy.workout_service.dto.exercise.GetExerciseDTO;
+import me.kqlqk.behealthy.workout_service.dto.workout_info.AddUpdateWorkoutInfoDTO;
+import me.kqlqk.behealthy.workout_service.dto.workout_info.GetWorkoutInfoDTO;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,32 +27,20 @@ public class WorkoutRestController {
     }
 
     @GetMapping("/workout")
-    public List<WorkoutInfoDTO> getWorkout(@RequestParam long userId) {
-        if (!workoutInfoService.existsByUserId(userId)) {
-            throw new WorkoutNotFoundException("User's workout with userId = " + userId + " not found");
-        }
-
-        return WorkoutInfoDTO.convertListOfWorkoutInfoToListOfWorkoutInfoDTO(workoutInfoService.getByUserId(userId));
+    public List<GetWorkoutInfoDTO> getWorkoutInfos(@RequestParam long userId) {
+        return GetWorkoutInfoDTO.convertList(workoutInfoService.getByUserId(userId));
     }
 
     @PostMapping("/workout")
-    public ResponseEntity<?> createWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
-        if (workoutInfoService.existsByUserId(userId)) {
-            throw new WorkoutNotFoundException("User's workout with userId = " + userId + " already exists");
-        }
-
-        workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
+    public ResponseEntity<?> createWorkoutInfos(@RequestParam long userId, @RequestBody @Valid AddUpdateWorkoutInfoDTO addWorkoutInfoDTO) {
+        workoutInfoService.generateAndSaveCompleteWorkout(userId, addWorkoutInfoDTO.getWorkoutsPerWeek());
 
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/workout")
-    public ResponseEntity<?> updateWorkout(@RequestParam long userId, @RequestBody WorkoutInfoDTO workoutInfoDTO) {
-        if (!workoutInfoService.existsByUserId(userId)) {
-            throw new WorkoutNotFoundException("User's workout with userId = " + userId + " not found");
-        }
-
-        workoutInfoService.generateAndSaveWorkout(userId, workoutInfoDTO.getWorkoutsPerWeek());
+    public ResponseEntity<?> updateWorkoutInfos(@RequestParam long userId, @RequestBody @Valid AddUpdateWorkoutInfoDTO updateWorkoutInfoDTO) {
+        workoutInfoService.generateAndSaveCompleteWorkout(userId, updateWorkoutInfoDTO.getWorkoutsPerWeek());
 
         return ResponseEntity.ok().build();
     }
@@ -68,33 +56,17 @@ public class WorkoutRestController {
         }
 
         if (name != null) {
-            if (exerciseService.getByName(name) == null) {
-                throw new ExerciseNotFoundException("Exercise with name = " + name + " not found");
-            }
-
-            return ResponseEntity.ok(exerciseService.getByName(name));
-        } else {
-            Stream.of(MuscleGroup.values())
-                    .filter(m -> m.name().equalsIgnoreCase(muscleGroup))
-                    .findAny()
-                    .orElseThrow(() -> new ExerciseNotFoundException("Muscle group '" + muscleGroup + "' not found"));
-
-            return ResponseEntity.ok(exerciseService.getByMuscleGroup(MuscleGroup.valueOf(muscleGroup.toUpperCase())));
+            return ResponseEntity.ok(GetExerciseDTO.convert(exerciseService.getByName(name)));
+        }
+        else {
+            return ResponseEntity.ok(GetExerciseDTO.convertList(exerciseService.getByMuscleGroup(MuscleGroup.valueOf(muscleGroup.toUpperCase()))));
         }
     }
 
     @PutMapping("/workout/alternative")
     public ResponseEntity<?> updateWorkoutWithAlternativeExercise(@RequestParam long userId,
-                                                                  @RequestParam String exerciseNameToChange) {
-        if (!workoutInfoService.existsByUserId(userId)) {
-            throw new WorkoutNotFoundException("User's workout with userId = " + userId + " not found");
-        }
-        if (exerciseService.getByName(exerciseNameToChange) == null) {
-            throw new ExerciseNotFoundException("There is no exercise with name = " + exerciseNameToChange);
-        }
-
-        workoutInfoService.updateWorkoutWithAlternativeExercise(userId,
-                ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName(exerciseNameToChange)));
+                                                                  @RequestParam String exerciseName) {
+        workoutInfoService.updateWorkoutWithAlternativeExercise(userId, exerciseService.getByName(exerciseName));
 
         return ResponseEntity.ok().build();
     }

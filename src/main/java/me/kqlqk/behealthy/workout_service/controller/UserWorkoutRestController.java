@@ -1,13 +1,14 @@
 package me.kqlqk.behealthy.workout_service.controller;
 
-import me.kqlqk.behealthy.workout_service.dto.UserWorkoutDTO;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
+import me.kqlqk.behealthy.workout_service.dto.user_workout.AddUserWorkoutDTO;
+import me.kqlqk.behealthy.workout_service.dto.user_workout.GetUserWorkoutDTO;
 import me.kqlqk.behealthy.workout_service.model.UserWorkout;
 import me.kqlqk.behealthy.workout_service.service.UserWorkoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -21,28 +22,30 @@ public class UserWorkoutRestController {
     }
 
     @GetMapping("/workout")
-    public List<UserWorkout> getUserWorkout(@RequestParam long userId) {
-        List<UserWorkout> workouts = userWorkoutService.getByUserId(userId);
-
-        if (workouts.isEmpty()) {
-            throw new WorkoutNotFoundException("User's with userId = " + userId + " workout not found");
-        }
-
-        return workouts;
+    public List<GetUserWorkoutDTO> getUserWorkout(@RequestParam long userId) {
+        return GetUserWorkoutDTO.convertList(userWorkoutService.getByUserId(userId));
     }
 
     @PostMapping("/workout")
-    public ResponseEntity<?> addExercise(@RequestParam long userId, @RequestBody UserWorkoutDTO userWorkoutDTO) {
-        userWorkoutDTO.setUserId(userId);
-        userWorkoutService.save(userWorkoutDTO);
+    public ResponseEntity<?> addExercise(@RequestParam long userId, @RequestBody @Valid AddUserWorkoutDTO addUserWorkoutDTO) {
+        UserWorkout userWorkout = new UserWorkout();
+        userWorkout.setUserId(userId);
+        userWorkout.setExerciseName(addUserWorkoutDTO.getExerciseName());
+        userWorkout.setMuscleGroup(addUserWorkoutDTO.getMuscleGroup());
+        userWorkout.setRep(addUserWorkoutDTO.getRep());
+        userWorkout.setSet(addUserWorkoutDTO.getSet());
+        userWorkout.setNumberPerDay(addUserWorkoutDTO.getNumberPerDay());
+        userWorkout.setDay(addUserWorkoutDTO.getDay());
+
+        userWorkoutService.save(userWorkout);
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/workout")
     public ResponseEntity<?> removeExercise(@RequestParam long userId,
-                                            @RequestParam Long exerciseId) {
-        userWorkoutService.remove(userId, exerciseId);
+                                            @RequestParam String exerciseName) {
+        userWorkoutService.remove(userId, exerciseName);
 
         return ResponseEntity.ok().build();
     }

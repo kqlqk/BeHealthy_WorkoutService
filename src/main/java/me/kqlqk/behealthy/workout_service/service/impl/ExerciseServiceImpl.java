@@ -1,10 +1,9 @@
 package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.repository.ExerciseRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +23,28 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public Exercise getById(int id) {
+        if (!exerciseRepository.existsById(id)) {
+            throw new ExerciseNotFoundException("Exercise with id = " + id + " not found");
+        }
+
         return exerciseRepository.findById(id);
     }
 
     @Override
-    public Exercise getByName(String name) {
+    public Exercise getByName(@NonNull String name) {
+        if (!exerciseRepository.existsByName(name)) {
+            throw new ExerciseNotFoundException("Exercise with name = " + name + " not found");
+        }
+
         return exerciseRepository.findByName(name);
     }
 
     @Override
-    public List<Exercise> getByMuscleGroup(MuscleGroup muscleGroup) {
+    public List<Exercise> getByMuscleGroup(@NonNull MuscleGroup muscleGroup) {
+        if (!exerciseRepository.existsByMuscleGroup(muscleGroup)) {
+            throw new ExerciseNotFoundException("Exercise with muscleGroup = " + muscleGroup.name() + " not found");
+        }
+
         return exerciseRepository.findByMuscleGroup(muscleGroup);
     }
 
@@ -57,14 +68,14 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<Exercise> getAlternative(@NonNull ExerciseDTO exerciseDTO) {
-        if (exerciseDTO.getAlternativeId() == null) {
-            throw new ExerciseNotFoundException("There are no alternative exercises for " + exerciseDTO.getName());
+    public List<Exercise> getAlternative(@NonNull Exercise exercise) {
+        if (exercise.getAlternativeId() == null) {
+            throw new ExerciseNotFoundException("There are no alternative exercises for " + exercise.getName());
         }
 
-        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exerciseDTO.getAlternativeId());
+        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exercise.getAlternativeId());
 
-        alternatives.removeIf(alt -> alt.getId() == exerciseDTO.getId());
+        alternatives.removeIf(alt -> alt.getId() == exercise.getId());
 
         return alternatives;
     }

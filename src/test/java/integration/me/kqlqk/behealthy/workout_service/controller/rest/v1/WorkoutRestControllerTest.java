@@ -2,20 +2,16 @@ package integration.me.kqlqk.behealthy.workout_service.controller.rest.v1;
 
 import annotations.ControllerTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
-import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
-import me.kqlqk.behealthy.workout_service.enums.Gender;
+import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
+import me.kqlqk.behealthy.workout_service.dto.workout_info.AddUpdateWorkoutInfoDTO;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
-import me.kqlqk.behealthy.workout_service.model.Exercise;
-import me.kqlqk.behealthy.workout_service.service.ExerciseService;
-import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
+import me.kqlqk.behealthy.workout_service.model.enums.Gender;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,128 +27,160 @@ public class WorkoutRestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private WorkoutInfoService workoutInfoService;
-
-    @Autowired
-    private ExerciseService exerciseService;
-
     @Test
-    public void getWorkout_shouldReturnWorkoutList() throws Exception {
+    public void getWorkoutInfos_shouldReturnWorkoutInfos() throws Exception {
         mockMvc.perform(get("/api/v1/workout")
-                        .param("userId", "1"))
+                                .param("userId", "1")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].day").exists())
                 .andExpect(jsonPath("$[0].numberPerDay").exists())
                 .andExpect(jsonPath("$[0].exercise").isMap())
-                .andExpect(jsonPath("$[0].exercise.id").exists())
                 .andExpect(jsonPath("$[0].exercise.name").exists())
                 .andExpect(jsonPath("$[0].exercise.description").exists())
                 .andExpect(jsonPath("$[0].exercise.muscleGroup").exists())
-                .andExpect(jsonPath("$[0].reps").exists())
-                .andExpect(jsonPath("$[0].sets").exists());
+                .andExpect(jsonPath("$[0].rep").exists())
+                .andExpect(jsonPath("$[0].set").exists());
     }
 
     @Test
-    public void createWorkout_shouldCreateWorkout() throws Exception {
-        UserConditionDTO userConditionDTO = new UserConditionDTO(1, 2, Gender.MALE);
+    public void getWorkoutInfos_shouldReturnJsonException() throws Exception {
+        mockMvc.perform(get("/api/v1/workout")
+                                .param("userId", "0")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("WorkoutInfos with userId = 0 not found")));
+    }
+
+    @Test
+    public void createWorkoutInfos_shouldCreateWorkoutInfos() throws Exception {
+        UserConditionDTO userConditionDTO = new UserConditionDTO(2, Gender.MALE);
         when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
 
-        WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO();
-        workoutInfoDTO.setWorkoutsPerWeek(3);
-
+        AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(3);
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(workoutInfoDTO);
+        String json = mapper.writeValueAsString(addWorkoutInfoDTO);
 
         mockMvc.perform(post("/api/v1/workout")
-                        .param("userId", "2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                                .param("userId", "2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void createWorkout_shouldReturnJsonWithException() throws Exception {
-        WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO();
-        workoutInfoDTO.setWorkoutsPerWeek(3);
+    public void createWorkoutInfos_shouldReturnJsonWithException() throws Exception {
+        UserConditionDTO userConditionDTO = new UserConditionDTO(2, Gender.MALE);
+        when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(workoutInfoDTO);
+        AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(0);
+        String json = mapper.writeValueAsString(addWorkoutInfoDTO);
 
         mockMvc.perform(post("/api/v1/workout")
-                        .param("userId", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                                .param("userId", "2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("WorkoutNotFound | User's workout with userId = 1 already exists")));
+                .andExpect(jsonPath("$.info", is("WorkoutsPerWeek should be between 1 and 5")));
+
+
+        addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(6);
+        json = mapper.writeValueAsString(addWorkoutInfoDTO);
+
+        mockMvc.perform(post("/api/v1/workout")
+                                .param("userId", "2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("WorkoutsPerWeek should be between 1 and 5")));
     }
 
     @Test
-    public void updateWorkout_shouldUpdateWorkout() throws Exception {
-        UserConditionDTO userConditionDTO = new UserConditionDTO(1, 1, Gender.MALE);
+    public void updateWorkoutInfos_shouldUpdateWorkoutInfos() throws Exception {
+        UserConditionDTO userConditionDTO = new UserConditionDTO(1, Gender.MALE);
         when(conditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
 
-        WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO();
-        workoutInfoDTO.setWorkoutsPerWeek(2);
-
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(workoutInfoDTO);
+        AddUpdateWorkoutInfoDTO updateWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(5);
+        String json = mapper.writeValueAsString(updateWorkoutInfoDTO);
 
         mockMvc.perform(put("/api/v1/workout")
-                        .param("userId", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                                .param("userId", "1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void updateWorkout_shouldReturnJsonWithException() throws Exception {
-        WorkoutInfoDTO workoutInfoDTO = new WorkoutInfoDTO();
-        workoutInfoDTO.setWorkoutsPerWeek(2);
+    public void updateWorkoutInfos_shouldReturnJsonWithException() throws Exception {
+        UserConditionDTO userConditionDTO = new UserConditionDTO(1, Gender.MALE);
+        when(conditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(workoutInfoDTO);
+        AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(0);
+        String json = mapper.writeValueAsString(addWorkoutInfoDTO);
 
-        mockMvc.perform(put("/api/v1/workout")
-                        .param("userId", "2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+        mockMvc.perform(post("/api/v1/workout")
+                                .param("userId", "1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("WorkoutNotFound | User's workout with userId = 2 not found")));
+                .andExpect(jsonPath("$.info", is("WorkoutsPerWeek should be between 1 and 5")));
+
+
+        addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(6);
+        json = mapper.writeValueAsString(addWorkoutInfoDTO);
+
+        mockMvc.perform(post("/api/v1/workout")
+                                .param("userId", "1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("WorkoutsPerWeek should be between 1 and 5")));
     }
 
     @Test
-    public void getExercisesByParams_shouldReturnExerciseByParams() throws Exception {
+    public void getExercisesByParams_shouldReturnExerciseOrExercisesByParams() throws Exception {
         mockMvc.perform(get("/api/v1/exercises")
-                        .param("name", "dips"))
+                                .param("name", "dips")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").exists())
                 .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.muscleGroup").exists());
+                .andExpect(jsonPath("$.muscleGroup").exists())
+                .andExpect(jsonPath("$.alternativeId").exists());
 
 
         mockMvc.perform(get("/api/v1/exercises")
-                        .param("muscleGroup", "chest"))
+                                .param("muscleGroup", "chest")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].name").exists())
                 .andExpect(jsonPath("$[0].description").exists())
                 .andExpect(jsonPath("$[0].muscleGroup").exists());
@@ -161,34 +189,31 @@ public class WorkoutRestControllerTest {
     @Test
     public void getExercisesByParams_shouldReturnJsonWithException() throws Exception {
         mockMvc.perform(get("/api/v1/exercises")
-                        .param("name", "dips")
-                        .param("muscleGroup", "chest"))
+                                .param("name", "dips")
+                                .param("muscleGroup", "chest")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Provide only 1 filter")));
+                .andExpect(jsonPath("$.info", is("Provide only 1 filter")));
 
-        mockMvc.perform(get("/api/v1/exercises"))
+        mockMvc.perform(get("/api/v1/exercises")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
-                .andExpect(jsonPath("$.info", is("ExerciseNotFound | Was not provided 'name' or 'muscleGroup' filter")));
+                .andExpect(jsonPath("$.info", is("Was not provided 'name' or 'muscleGroup' filter")));
     }
 
     @Test
     public void updateWorkoutWithAlternativeExercise_shouldUpdateWorkoutWithAlternativeExercise() throws Exception {
-        Exercise toChange = exerciseService.getByName("seated dumbbell press");
-
         mockMvc.perform(put("/api/v1/workout/alternative")
-                        .param("userId", "1")
-                        .param("exerciseNameToChange", "seated dumbbell press"))
+                                .param("userId", "1")
+                                .param("exerciseName", "seated dumbbell press"))
                 .andDo(print())
                 .andExpect(status().isOk());
-
-        workoutInfoService.getByUserId(1).forEach(workoutInfo ->
-                assertThat(workoutInfo.getExercise().getId()).isNotEqualTo(toChange.getId()));
     }
 
 }

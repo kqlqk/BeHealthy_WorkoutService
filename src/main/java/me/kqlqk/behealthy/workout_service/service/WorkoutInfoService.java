@@ -1,7 +1,6 @@
 package me.kqlqk.behealthy.workout_service.service;
 
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
+import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +10,11 @@ import java.util.List;
 public interface WorkoutInfoService {
     List<WorkoutInfo> getByUserId(long userId);
 
-    boolean existsByUserId(long userId);
+    void save(WorkoutInfo workoutInfo);
 
-    void deleteByUserId(long userId);
+    void update(WorkoutInfo workoutInfo);
 
-    void save(WorkoutInfoDTO workoutInfoDTO);
+    void updateWorkoutWithAlternativeExercise(long userId, Exercise toChange);
 
-    void updateWorkoutWithAlternativeExercise(long userId, ExerciseDTO toChange);
-
-    void generateAndSaveWorkout(long userId, int workoutsPerWeek);
+    void generateAndSaveCompleteWorkout(long userId, int workoutsPerWeek);
 }

@@ -1,8 +1,7 @@
 package me.kqlqk.behealthy.workout_service.service;
 
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,5 +16,5 @@ public interface ExerciseService {
 
     List<Exercise> getSpecificAmountOfMuscleGroup(int amount, MuscleGroup muscleGroup);
 
-    List<Exercise> getAlternative(ExerciseDTO exerciseDTO);
+    List<Exercise> getAlternative(Exercise exercise);
 }

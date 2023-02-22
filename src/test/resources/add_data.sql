@@ -1,11 +1,11 @@
 delete
 from workout_info;
 delete
-from exercises;
+from exercise;
 delete
-from user_workouts;
+from user_workout;
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('seated dumbbell press',
         '1. Sit on a low-back bench and hold a dumbbell in each hand at shoulder level, palms facing forward.
         2. Keeping your head and spine perfectly straight, lift the dumbbells overhead toward one another, stopping just short of having them touch at the top.
@@ -14,7 +14,7 @@ values ('seated dumbbell press',
         'FRONT_DELTS',
         3);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('smith machine seated press',
         '1. Set up for the smith machine shoulder press by setting a bench down in the smith machine and adjusting the back to a 60-85 degree angle.
         2. Now sit down on the bench and adjust the position so that the bar comfortably comes down just in front of your face.
@@ -25,7 +25,7 @@ values ('smith machine seated press',
         'FRONT_DELTS',
         3);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('lateral raise',
         '1. Start in the standing position, keeping your feet shoulder-width apart, your abs tight, your chest up, your head straight, and your shoulders pinched. Hold the dumbbells at either side, retaining a neutral grip.
         2. Now, here comes the hard part. Using just your shoulders and arms, raise the dumbbells a notch above shoulder level.
@@ -35,7 +35,7 @@ values ('lateral raise',
         'LATERAL_DELTS',
         6);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('seated lateral raise',
         '1. Sit on a bench and hold a dumbbell in each hand by your side.
         2. Raise both dumbbells to your side until they''re shoulder height.
@@ -44,7 +44,7 @@ values ('seated lateral raise',
         'LATERAL_DELTS',
         6);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('rear delts machine',
         '1. Sit on the machine, facing the pad. You’ll appear to be sitting on it backward, but for this exercise, you’re positioned just right. Adjust the seat height so the handles in front of you are level with your shoulders.
         2. Holding the handles, either with palms down or palms facing each other, press your arms back, keeping them straight or slightly bent.
@@ -54,7 +54,7 @@ values ('rear delts machine',
         'REAR_DELTS',
         8);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('seated bent-over dumbbell raise',
         '1. Begin by sitting on the end of a bench while holding two dumbbells.
         2. Then bend your torso over and keep your back straight.
@@ -65,7 +65,7 @@ values ('seated bent-over dumbbell raise',
         'REAR_DELTS',
         8);
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('machine fly',
         '1. Sit up tall and relax your neck and shoulders.
         2. Grab the handles so that your palms are facing forward.
@@ -74,7 +74,7 @@ values ('machine fly',
         E.g. https://www.youtube.com/watch?v=wr8OCIugQSU',
         'CHEST');
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('incline barbell press',
         '1. The Incline should be set at 30-45 degrees.
         2. Retract and squeeze your scapulae together when laying on the bench.
@@ -85,7 +85,7 @@ values ('incline barbell press',
         'CHEST',
         4);
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('seated overhead triceps Extension',
         '1. Select the desired weight from the rack and position an adjustable bench at 90 degrees.
         2. To get into position, sit in an upright position and lift the dumbbell to the top of your shoulder. Take a deep breath, overlap your hands around the dumbbell, then press it into position overhead.
@@ -94,14 +94,14 @@ values ('seated overhead triceps Extension',
         E.g. https://www.youtube.com/watch?v=YbX7Wd8jQ-Q',
         'TRICEPS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('rope push-down',
         '1. At a cable machine with a rope attachment, hold the rope near the knotted ends and begin the exercise with the elbows bent at about 90 degrees. Your elbows should be next to your torso.
         2. Extend the arms, taking the hands down towards the floor, spreading the rope slightly out on either side as you contract the triceps.
         E.g. https://www.youtube.com/watch?v=vB5OHsJ3EME',
         'TRICEPS');
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('bench press',
         '1. Lie on the bench with your eyes under the bar.
         2. Grab the bar with a medium grip-width.
@@ -112,7 +112,7 @@ values ('bench press',
         'CHEST_TRICEPS',
         2);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('dips',
         '1. Grab the parallel bars and jump up, straighten your arms.
         2. Lower your body by bending your arms while leaning forward.
@@ -122,7 +122,7 @@ values ('dips',
         'CHEST_TRICEPS',
         2);
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('t-bar row',
         '1. Place the end of an empty barbell into the corner of a room.
         2. Rest a heavy dumbbell or some weight plates on it to hold it down.
@@ -133,7 +133,7 @@ values ('t-bar row',
         E.g. https://www.youtube.com/watch?v=KDEl3AmZbVE&t',
         'TRAPS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('barbell row',
         '1. Stand with your mid-foot under the bar (medium stance)
         2. Bend over and grab the bar (palms down, medium-grip)
@@ -143,7 +143,7 @@ values ('barbell row',
         E.g. https://www.youtube.com/watch?v=ML1L5ytxLMY&t',
         'LATS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('back extension',
         '1. Adjust a back extension bench and get into position. Hold a weight plate against your chest or a barbell across your shoulders if you want to use additional weight.
         2. Lean forward as far as you can by hinging in your hips.
@@ -151,7 +151,7 @@ values ('back extension',
         E.g. https://www.youtube.com/watch?v=Tb9yp81fI9s',
         'LOWER_BACK');
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('barbell curl',
         '1. Grasp a barbell or Olympic bar at around shoulder width apart using an underhand grip.
         2. Stand straight up, feet together, back straight, and with your arms fully extended.
@@ -162,7 +162,7 @@ values ('barbell curl',
         'BICEPS',
         1);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('dumbbell curl',
         '1. Grasp dumbbells parallel to your feet.
         2. Stand straight up, feet together, back straight, and with your arms fully extended.
@@ -171,7 +171,7 @@ values ('dumbbell curl',
         'BICEPS',
         1);
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('barbell wrist curl',
         '1. Sit in the middle of a flat bench with your legs straddling the bench. Hold a barbell with your hands about 15 cm apart, palms facing up.
         2. Bend over at the waist, and place the backs of your forearms against the bench, with your hands and wrists over the edge.
@@ -179,7 +179,7 @@ values ('barbell wrist curl',
         E.g. https://www.youtube.com/watch?v=jv-EBaz8CJE',
         'FOREARMS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('hanging leg raises',
         '1. Exhale as you lift your feet off the ground, raising your straight legs outward in front of you.
         2. Raise your legs to a level that feels challenging but still enables you to keep good form. Strive to get them parallel to the ground (so that your hips are bent at 90 degrees), or a little higher if you can.
@@ -187,7 +187,7 @@ values ('hanging leg raises',
         E.g. https://www.youtube.com/watch?v=Pr1ieGZ5atk&t',
         'ABS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('squats',
         '1. Safely load the barbell onto your traps and shoulders. Stand with your feet shoulder-width apart, toes slightly out, core braced, and chest up.
         2. Initiate a basic squat movement — hips back, knees bent, ensuring they fall out, not in. Pause when your thighs reach about parallel to the ground.
@@ -195,7 +195,7 @@ values ('squats',
         E.g. https://www.youtube.com/watch?v=Dy28eq2PjcM',
         'QUADRICEPS_BUTTOKS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('lying leg curl machine',
         '1. Exhale and flex your knees, pulling your ankles as close to your buttocks as possible. Keep your hips firmly on the bench.
         2. Hold briefly.
@@ -203,7 +203,7 @@ values ('lying leg curl machine',
         E.g. https://www.youtube.com/watch?v=1Tq3QdYUuHs&t',
         'HAMSTRINGS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('seated calf raise machine',
         '1. First you will need to sit down.
         2. After sitting down, you will want to raise the bar to a height where your legs just manage to squeeze underneath the bar.
@@ -212,7 +212,7 @@ values ('seated calf raise machine',
         E.g. https://www.youtube.com/watch?v=mTissC9K1FQ',
         'CALVES');
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('incline dumbbell press',
         '1. Lie back on a bench set to a 30-45 degree angle and lift the weights up to shoulder height, palms facing away from you.
         2. Breathe out as you press up with both arms.
@@ -221,7 +221,7 @@ values ('incline dumbbell press',
         'CHEST',
         4);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('deadlift',
         '1. Stand with your mid-foot under the barbell.
         2. Bend over and grab the bar with a shoulder-width grip.
@@ -232,7 +232,7 @@ values ('deadlift',
         'FULL_BACK',
         5);
 
-insert into exercises(exercise_name, description, muscle_group, alternative_id)
+insert into exercise(exercise_name, description, muscle_group, alternative_id)
 values ('pull-ups',
         '1. Exhale while pulling yourself up so your chin is level with the bar. Pause at the top.
         2. Lower yourself (inhaling as you go down) until your elbows are straight.
@@ -240,7 +240,7 @@ values ('pull-ups',
         'FULL_BACK',
         5);
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('bulgarian squats',
         '1. Stand with your feet shoulder-width apart, about two steps away from a bench, a box, or another knee-high surface.
         2. Rest the top of one foot on the object behind you and step your front foot forward far enough that you can squat without your knee going past your toes.
@@ -248,7 +248,7 @@ values ('bulgarian squats',
         E.g. https://www.youtube.com/watch?v=vLuhN_glFZ8',
         'QUADRICEPS_BUTTOKS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('leg extension',
         '1. Place your hands on the hand bars.
         2. Lift the weight while exhaling until your legs are almost straight. Do not lock your knees. Keep your back against the backrest and do not arch your back.
@@ -256,7 +256,7 @@ values ('leg extension',
         E.g. https://www.youtube.com/watch?v=swZQC689o9U',
         'QUADRICEPS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('hip thrust',
         '1. Start seated on the floor, knees bent, feet slightly wider than hip-distance apart. The upper back should be resting against the edge of the weight bench in the center of the bench.
         2. Place the weight bar across the hips. Hold onto the bar to keep it in place, but do not use your arms to lift it.
@@ -265,7 +265,7 @@ values ('hip thrust',
         E.g. https://www.youtube.com/watch?v=Zp26q4BY5HE',
         'BUTTOKS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('t-bar rows',
         '1. Bend over the end of the bar near to the weight and take it with a V-grip handle in both hands.
         2. Maintaining a neutral arch in your lower back, squeeze your shoulder blades together and lift the bar, so the plate touches your chest.
@@ -273,7 +273,7 @@ values ('t-bar rows',
         E.g. https://www.youtube.com/watch?v=KDEl3AmZbVE',
         'REAR_DELTS_LATS');
 
-insert into exercises(exercise_name, description, muscle_group)
+insert into exercise(exercise_name, description, muscle_group)
 values ('reverse grip dumbbells curl',
         '1. Stand with your legs shoulder-width apart and hold bar at your thighs with an overhand grip.
         2. Raise your forearms, keeping your upper arms close to your body, so that your palms face forward and the bar are shoulder height.
@@ -282,27 +282,27 @@ values ('reverse grip dumbbells curl',
         'BICEPS_FOREARMS');
 
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_reps, exercise_sets)
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_rep, exercise_set)
 values (1, 1, 1, 1, 8, 4);
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_reps, exercise_sets)
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_rep, exercise_set)
 values (1, 1, 2, 4, 8, 3);
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_reps, exercise_sets)
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_rep, exercise_set)
 values (1, 2, 1, 6, 6, 5);
 
-insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_reps, exercise_sets)
+insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exercise_rep, exercise_set)
 values (1, 2, 2, 5, 10, 4);
 
 
-insert into user_workouts(exercise_name, muscle_group, exercise_reps, exercise_sets, workout_day, number_per_day,
-                          user_id)
+insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+                         user_id)
 values ('bench press', 'CHEST_TRICEPS', 10, 3, 1, 1, 1);
 
-insert into user_workouts(exercise_name, muscle_group, exercise_reps, exercise_sets, workout_day, number_per_day,
-                          user_id)
+insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+                         user_id)
 values ('deadlift', 'FULL_BACK', 7, 4, 1, 2, 1);
 
-insert into user_workouts(exercise_name, muscle_group, exercise_reps, exercise_sets, workout_day, number_per_day,
-                          user_id)
+insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+                         user_id)
 values ('90 degree press', 'FRONT_DELTS', 10, 4, 1, 1, 2);

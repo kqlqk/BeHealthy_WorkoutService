@@ -1,16 +1,14 @@
 package me.kqlqk.behealthy.workout_service.service.impl;
 
 import lombok.NonNull;
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
-import me.kqlqk.behealthy.workout_service.dto.WorkoutInfoDTO;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.WorkoutNotFoundException;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.conditionService.ExerciseException;
+import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoAlreadyExistsException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoNotFoundException;
 import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.repository.WorkoutInfoRepository;
 import me.kqlqk.behealthy.workout_service.service.ExerciseService;
 import me.kqlqk.behealthy.workout_service.service.WorkoutInfoService;
@@ -18,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,19 +24,21 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     private final WorkoutInfoRepository workoutInfoRepository;
     private final ConditionClient conditionClient;
     private final ExerciseService exerciseService;
-    private final Validator validator;
 
     @Autowired
-    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, ConditionClient conditionClient, ExerciseService exerciseService, Validator validator) {
+    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, ConditionClient conditionClient, ExerciseService exerciseService) {
         this.workoutInfoRepository = workoutInfoRepository;
         this.conditionClient = conditionClient;
         this.exerciseService = exerciseService;
-        this.validator = validator;
     }
 
 
     @Override
     public List<WorkoutInfo> getByUserId(long userId) {
+        if (!workoutInfoRepository.existsByUserId(userId)) {
+            throw new WorkoutInfoNotFoundException("WorkoutInfos with userId = " + userId + " not found");
+        }
+
         List<WorkoutInfo> workoutInfos = workoutInfoRepository.findByUserId(userId);
 
         return setWorkoutsPerWeekAndReturn(workoutInfos);
@@ -63,40 +60,31 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     }
 
     @Override
-    public boolean existsByUserId(long userId) {
-        return workoutInfoRepository.existsByUserId(userId);
-    }
-
-    @Override
-    public void deleteByUserId(long userId) {
-        workoutInfoRepository.deleteByUserId(userId);
-    }
-
-    @Override
-    public void save(@NonNull WorkoutInfoDTO workoutInfoDTO) {
-        workoutInfoRepository.save(workoutInfoDTO.convertToWorkoutInfo());
-    }
-
-    private void saveListOfWorkout(@NonNull List<WorkoutInfo> workoutInfos) {
-        for (WorkoutInfo workoutInfo : workoutInfos) {
-            save(WorkoutInfoDTO.convertToWorkoutInfoDTO(workoutInfo));
-        }
-    }
-
-    @Override
-    public void updateWorkoutWithAlternativeExercise(long userId, @NonNull ExerciseDTO toChange) {
-        Set<ConstraintViolation<ExerciseDTO>> constraintViolationsName = validator.validateProperty(toChange, "name");
-
-        if (!constraintViolationsName.isEmpty()) {
-            throw new ExerciseException(constraintViolationsName.iterator().next().getMessage());
+    public void save(@NonNull WorkoutInfo workoutInfo) {
+        if (workoutInfoRepository.existsById(workoutInfo.getId())) {
+            throw new WorkoutInfoAlreadyExistsException("WorkoutInfo with id = " + workoutInfo.getId() + " already exists");
         }
 
+        workoutInfo.setId(0);
+        workoutInfoRepository.save(workoutInfo);
+    }
+
+    @Override
+    public void update(@NonNull WorkoutInfo workoutInfo) {
+        if (!workoutInfoRepository.existsById(workoutInfo.getId())) {
+            throw new WorkoutInfoNotFoundException("WorkoutInfo with id = " + workoutInfo.getId() + " not found");
+        }
+
+        workoutInfoRepository.save(workoutInfo);
+    }
+
+
+    @Override
+    public void updateWorkoutWithAlternativeExercise(long userId, @NonNull Exercise toChange) {
         List<WorkoutInfo> workout = getByUserId(userId);
         List<Exercise> alternatives = exerciseService.getAlternative(toChange);
 
-        if (workout
-                .stream()
-                .noneMatch(w -> w.getExercise().getId() == toChange.getId())) {
+        if (workout.stream().noneMatch(w -> w.getExercise().getId() == toChange.getId())) {
             throw new ExerciseNotFoundException("User's workout hasn't exercise with name = " + toChange.getName());
         }
 
@@ -109,20 +97,20 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
             }
         }
 
-        saveListOfWorkout(workout);
+        workout.forEach(this::update);
     }
 
     @Override
     @Transactional
-    public void generateAndSaveWorkout(long userId, int workoutsPerWeek) {
+    public void generateAndSaveCompleteWorkout(long userId, int workoutsPerWeek) {
         if (userId < 1) {
-            throw new WorkoutNotFoundException("userId should be > 1");
+            throw new WorkoutInfoNotFoundException("userId should be > 1");
         }
         if (workoutsPerWeek < 1 || workoutsPerWeek > 5) {
-            throw new WorkoutNotFoundException("workoutsPerWeek should be between 1 and 5");
+            throw new WorkoutInfoNotFoundException("workoutsPerWeek should be between 1 and 5");
         }
-        if (existsByUserId(userId)) {
-            deleteByUserId(userId);
+        if (workoutInfoRepository.existsByUserId(userId)) {
+            workoutInfoRepository.deleteByUserId(userId);
         }
 
         UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
@@ -165,7 +153,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave1DayMaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -173,7 +161,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -181,7 +169,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -189,7 +177,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -197,7 +185,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 12,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -205,7 +193,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 6,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -216,7 +204,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave2DaysMaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -224,7 +212,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -232,7 +220,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -240,7 +228,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 6,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -250,7 +238,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -258,7 +246,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -266,7 +254,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -274,7 +262,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -282,7 +270,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 12,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -293,7 +281,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave3DaysMaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -301,7 +289,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -309,7 +297,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -317,7 +305,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -325,7 +313,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -335,7 +323,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -343,7 +331,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 6));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -351,7 +339,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -359,7 +347,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -367,7 +355,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 12,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -376,7 +364,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 5));
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -384,7 +372,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -392,7 +380,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -400,7 +388,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -411,7 +399,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave4DaysMaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -419,7 +407,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -427,7 +415,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -435,7 +423,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -443,7 +431,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -453,7 +441,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -461,7 +449,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 6,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -469,7 +457,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -477,7 +465,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 12,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -485,7 +473,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -495,7 +483,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -503,7 +491,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -511,7 +499,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -519,7 +507,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -527,7 +515,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -535,7 +523,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -543,7 +531,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 12,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -553,7 +541,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -561,7 +549,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -569,7 +557,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -577,7 +565,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay,
@@ -588,7 +576,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave5DaysMaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -596,7 +584,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -604,7 +592,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -612,7 +600,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -622,7 +610,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -630,7 +618,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -638,7 +626,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -646,7 +634,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -654,7 +642,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -664,7 +652,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -672,7 +660,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -680,7 +668,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -688,7 +676,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -698,7 +686,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -706,7 +694,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -714,7 +702,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -722,7 +710,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay,
@@ -732,7 +720,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -740,7 +728,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -748,7 +736,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -756,7 +744,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay,
@@ -791,7 +779,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave1DayFemaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -799,7 +787,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 10,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -807,7 +795,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -815,7 +803,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -826,7 +814,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave2DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -834,7 +822,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -842,7 +830,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -850,7 +838,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 6,
                 5));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -860,7 +848,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -868,7 +856,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 10,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -876,7 +864,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 10,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -884,7 +872,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 15,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -892,7 +880,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -900,7 +888,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -911,7 +899,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave3DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -919,7 +907,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -927,7 +915,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -935,7 +923,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -943,7 +931,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 15,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -953,7 +941,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -961,7 +949,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 6));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -969,7 +957,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -977,7 +965,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -987,7 +975,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -995,7 +983,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1003,7 +991,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1011,7 +999,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -1022,7 +1010,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave4DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1030,7 +1018,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1038,7 +1026,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1046,7 +1034,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1054,7 +1042,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 15,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -1064,7 +1052,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1072,7 +1060,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 6));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1080,7 +1068,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1088,7 +1076,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -1098,7 +1086,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1106,7 +1094,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1114,7 +1102,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1122,7 +1110,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -1132,7 +1120,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -1140,7 +1128,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -1148,7 +1136,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -1156,7 +1144,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 10,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay,
@@ -1168,7 +1156,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave5DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1176,7 +1164,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1184,7 +1172,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1192,7 +1180,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 4));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
@@ -1200,7 +1188,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 15,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay,
@@ -1210,7 +1198,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1218,7 +1206,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 6));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1226,7 +1214,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
@@ -1234,7 +1222,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay,
@@ -1244,7 +1232,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1252,7 +1240,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1260,7 +1248,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
@@ -1268,7 +1256,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay,
@@ -1278,7 +1266,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -1286,7 +1274,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
@@ -1294,7 +1282,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay,
@@ -1304,7 +1292,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -1312,7 +1300,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -1320,7 +1308,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -1328,7 +1316,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 8,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay++,
@@ -1336,7 +1324,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 15,
                 3));
 
-        save(new WorkoutInfoDTO(
+        save(new WorkoutInfo(
                 userId,
                 5,
                 numberPerDay,

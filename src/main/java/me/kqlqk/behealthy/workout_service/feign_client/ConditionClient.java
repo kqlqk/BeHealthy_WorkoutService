@@ -1,14 +1,13 @@
 package me.kqlqk.behealthy.workout_service.feign_client;
 
-import me.kqlqk.behealthy.workout_service.dto.UserConditionDTO;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.MicroserviceException;
+import lombok.extern.slf4j.Slf4j;
+import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.RuntimeNotWrappedByHystrixException;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.concurrent.TimeoutException;
 
 @FeignClient(name = "conditionService", fallbackFactory = ConditionClient.Fallback.class)
 public interface ConditionClient {
@@ -16,18 +15,13 @@ public interface ConditionClient {
     UserConditionDTO getUserConditionByUserId(@RequestParam long userId);
 
     @Component
+    @Slf4j
     class Fallback implements FallbackFactory<ConditionClient> {
         @Override
         public ConditionClient create(Throwable cause) {
-            if (cause instanceof TimeoutException) {
-                throw new MicroserviceException("Service is unavailable");
-            }
+            log.warn("Something went wrong: ", cause);
 
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else {
-                throw new RuntimeException("Unhandled exception: " + cause.getMessage());
-            }
+            throw new RuntimeNotWrappedByHystrixException("Service is unavailable");
         }
     }
 }

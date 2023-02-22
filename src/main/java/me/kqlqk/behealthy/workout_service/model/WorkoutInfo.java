@@ -28,31 +28,31 @@ public class WorkoutInfo {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @Column(name = "exercise_reps", nullable = false)
-    private int reps;
+    @Column(name = "exercise_rep", nullable = false)
+    private int rep;
 
-    @Column(name = "exercise_sets", nullable = false)
-    private int sets;
+    @Column(name = "exercise_set", nullable = false)
+    private int set;
 
     @Transient
     private int workoutsPerWeek;
 
-    public WorkoutInfo(long userId, int day, int numberPerDay, Exercise exercise, int reps, int sets) {
+    public WorkoutInfo(long userId, int day, int numberPerDay, Exercise exercise, int rep, int set) {
         this.userId = userId;
         this.exercise = exercise;
         this.day = day;
         this.numberPerDay = numberPerDay;
-        this.reps = reps;
-        this.sets = sets;
+        this.rep = rep;
+        this.set = set;
     }
 
-    public WorkoutInfo(long id, long userId, int day, int numberPerDay, Exercise exercise, int reps, int sets) {
+    public WorkoutInfo(long id, long userId, int day, int numberPerDay, Exercise exercise, int rep, int set) {
         this.id = id;
         this.userId = userId;
         this.day = day;
         this.numberPerDay = numberPerDay;
         this.exercise = exercise;
-        this.reps = reps;
-        this.sets = sets;
+        this.rep = rep;
+        this.set = set;
     }
 }

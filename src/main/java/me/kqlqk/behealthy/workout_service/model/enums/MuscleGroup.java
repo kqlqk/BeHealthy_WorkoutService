@@ -1,4 +1,4 @@
-package me.kqlqk.behealthy.workout_service.enums;
+package me.kqlqk.behealthy.workout_service.model.enums;
 
 public enum MuscleGroup {
     FRONT_DELTS,

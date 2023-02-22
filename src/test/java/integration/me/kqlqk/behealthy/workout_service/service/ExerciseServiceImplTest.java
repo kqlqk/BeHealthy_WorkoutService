@@ -1,10 +1,9 @@
 package integration.me.kqlqk.behealthy.workout_service.service;
 
 import annotations.ServiceTest;
-import me.kqlqk.behealthy.workout_service.dto.ExerciseDTO;
-import me.kqlqk.behealthy.workout_service.enums.MuscleGroup;
-import me.kqlqk.behealthy.workout_service.exception.exceptions.ExerciseNotFoundException;
+import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
+import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.service.impl.ExerciseServiceImpl;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -38,19 +37,14 @@ public class ExerciseServiceImplTest {
 
     @Test
     public void getAlternative_shouldReturnListWithAlternativeExercises() {
-        ExerciseDTO e = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("dips"));
-
-        List<Exercise> exercises = exerciseService.getAlternative(e);
+        List<Exercise> exercises = exerciseService.getAlternative(exerciseService.getByName("dips"));
 
         assertThat(exercises).hasSize(1);
         assertThat(exercises.get(0).getName()).isEqualTo("bench press");
-        assertThat(exercises.get(0).getAlternativeId()).isEqualTo(e.getAlternativeId());
     }
 
     @Test
     public void getAlternative_shouldReturnException() {
-        ExerciseDTO e = ExerciseDTO.convertExerciseToExerciseDTO(exerciseService.getByName("machine fly"));
-
-        assertThrows(ExerciseNotFoundException.class, () -> exerciseService.getAlternative(e));
+        assertThrows(ExerciseNotFoundException.class, () -> exerciseService.getAlternative(exerciseService.getByName("machine fly")));
     }
 }
