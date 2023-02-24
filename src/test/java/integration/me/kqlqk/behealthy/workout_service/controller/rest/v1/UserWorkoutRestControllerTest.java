@@ -29,7 +29,7 @@ public class UserWorkoutRestControllerTest {
 
     @Test
     public void getUserWorkout_shouldReturnListWithUserWorkout() throws Exception {
-        mockMvc.perform(get("/api/v1/user/workout")
+        mockMvc.perform(get("/api/v1/workout/user")
                                 .param("userId", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -45,7 +45,7 @@ public class UserWorkoutRestControllerTest {
 
     @Test
     public void getUserWorkout_shouldReturnJsonWithException() throws Exception {
-        mockMvc.perform(get("/api/v1/user/workout")
+        mockMvc.perform(get("/api/v1/workout/user")
                                 .param("userId", "0"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -60,7 +60,7 @@ public class UserWorkoutRestControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -74,7 +74,7 @@ public class UserWorkoutRestControllerTest {
         AddUserWorkoutDTO addUserWorkoutDTO = new AddUserWorkoutDTO("", MuscleGroup.ABS, 12, 4, 1, 1);
         String json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -89,7 +89,7 @@ public class UserWorkoutRestControllerTest {
                                                   MuscleGroup.ABS, 12, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -104,7 +104,7 @@ public class UserWorkoutRestControllerTest {
                                                   MuscleGroup.ABS, 12, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -118,7 +118,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO(" ", MuscleGroup.ABS, 12, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -132,7 +132,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", null, 12, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -146,7 +146,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, -1, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -160,7 +160,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 1001, 4, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -174,7 +174,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 0, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -188,7 +188,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 101, 1, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -202,7 +202,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 4, 0, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -216,7 +216,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 4, 101, 1);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -230,7 +230,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 4, 1, 0);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -244,7 +244,7 @@ public class UserWorkoutRestControllerTest {
         addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", MuscleGroup.ABS, 12, 4, 1, 8);
         json = objectMapper.writeValueAsString(addUserWorkoutDTO);
 
-        mockMvc.perform(post("/api/v1/user/workout")
+        mockMvc.perform(post("/api/v1/workout/user")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                                 .param("userId", "1"))
@@ -260,7 +260,7 @@ public class UserWorkoutRestControllerTest {
         List<UserWorkout> oldWorkouts = userWorkoutService.getByUserId(1);
         String exerciseName = oldWorkouts.get(0).getExerciseName();
 
-        mockMvc.perform(delete("/api/v1/user/workout")
+        mockMvc.perform(delete("/api/v1/workout/user")
                                 .param("userId", "1")
                                 .param("exerciseName", exerciseName))
                 .andDo(print())

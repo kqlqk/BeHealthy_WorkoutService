@@ -12,7 +12,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/")
 public class UserWorkoutRestController {
     private final UserWorkoutService userWorkoutService;
 
@@ -21,12 +21,12 @@ public class UserWorkoutRestController {
         this.userWorkoutService = userWorkoutService;
     }
 
-    @GetMapping("/workout")
+    @GetMapping("/workout/user")
     public List<GetUserWorkoutDTO> getUserWorkout(@RequestParam long userId) {
         return GetUserWorkoutDTO.convertList(userWorkoutService.getByUserId(userId));
     }
 
-    @PostMapping("/workout")
+    @PostMapping("/workout/user")
     public ResponseEntity<?> addExercise(@RequestParam long userId, @RequestBody @Valid AddUserWorkoutDTO addUserWorkoutDTO) {
         UserWorkout userWorkout = new UserWorkout();
         userWorkout.setUserId(userId);
@@ -42,7 +42,7 @@ public class UserWorkoutRestController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/workout")
+    @DeleteMapping("/workout/user")
     public ResponseEntity<?> removeExercise(@RequestParam long userId,
                                             @RequestParam String exerciseName) {
         userWorkoutService.remove(userId, exerciseName);
