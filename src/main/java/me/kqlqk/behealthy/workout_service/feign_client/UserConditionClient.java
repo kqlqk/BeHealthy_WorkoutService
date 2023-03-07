@@ -9,16 +9,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "conditionService", fallbackFactory = ConditionClient.Fallback.class)
-public interface ConditionClient {
+@FeignClient(name = "userConditionService", fallbackFactory = UserConditionClient.Fallback.class)
+public interface UserConditionClient {
     @GetMapping("/api/v1/condition")
     UserConditionDTO getUserConditionByUserId(@RequestParam long userId);
 
     @Component
     @Slf4j
-    class Fallback implements FallbackFactory<ConditionClient> {
+    class Fallback implements FallbackFactory<UserConditionClient> {
         @Override
-        public ConditionClient create(Throwable cause) {
+        public UserConditionClient create(Throwable cause) {
             log.warn("Something went wrong: ", cause);
 
             throw new RuntimeNotWrappedByHystrixException("Service is unavailable");

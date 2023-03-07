@@ -2,7 +2,6 @@ package me.kqlqk.behealthy.workout_service.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 
 import javax.persistence.*;
 
@@ -18,10 +17,6 @@ public class UserWorkout {
 
     @Column(name = "exercise_name", nullable = false)
     private String exerciseName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "muscle_group", nullable = false)
-    private MuscleGroup muscleGroup;
 
     @Column(name = "exercise_rep", nullable = false)
     private int rep;

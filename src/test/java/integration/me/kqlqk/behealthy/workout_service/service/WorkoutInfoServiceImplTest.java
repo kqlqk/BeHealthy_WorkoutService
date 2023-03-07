@@ -5,7 +5,7 @@ import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoAlreadyExistsException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoNotFoundException;
-import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.feign_client.UserConditionClient;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.model.enums.Gender;
@@ -34,7 +34,7 @@ public class WorkoutInfoServiceImplTest {
     private WorkoutInfoRepository workoutInfoRepository;
 
     @MockBean
-    private ConditionClient conditionClient;
+    private UserConditionClient userConditionClient;
 
     @Test
     public void save_shouldSaveEntityToDb() {
@@ -105,7 +105,7 @@ public class WorkoutInfoServiceImplTest {
     @Test
     public void generateAndSaveWorkout_shouldGenerateAnsSaveWorkout() {
         UserConditionDTO userConditionDTO = new UserConditionDTO(2, Gender.MALE);
-        when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
+        when(userConditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
 
         workoutInfoService.generateAndSaveCompleteWorkout(2, 1);
         List<WorkoutInfo> workoutInfos = workoutInfoService.getByUserId(2);

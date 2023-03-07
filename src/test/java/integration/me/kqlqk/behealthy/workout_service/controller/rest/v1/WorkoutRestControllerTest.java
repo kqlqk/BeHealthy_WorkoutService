@@ -4,7 +4,7 @@ import annotations.ControllerTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.dto.workout_info.AddUpdateWorkoutInfoDTO;
-import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.feign_client.UserConditionClient;
 import me.kqlqk.behealthy.workout_service.model.enums.Gender;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ControllerTest
 public class WorkoutRestControllerTest {
     @MockBean
-    private ConditionClient conditionClient;
+    private UserConditionClient userConditionClient;
 
     @Autowired
     private MockMvc mockMvc;
@@ -61,7 +61,7 @@ public class WorkoutRestControllerTest {
     @Test
     public void createWorkoutInfos_shouldCreateWorkoutInfos() throws Exception {
         UserConditionDTO userConditionDTO = new UserConditionDTO(2, Gender.MALE);
-        when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
+        when(userConditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
 
         AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(3);
         ObjectMapper mapper = new ObjectMapper();
@@ -78,7 +78,7 @@ public class WorkoutRestControllerTest {
     @Test
     public void createWorkoutInfos_shouldReturnJsonWithException() throws Exception {
         UserConditionDTO userConditionDTO = new UserConditionDTO(2, Gender.MALE);
-        when(conditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
+        when(userConditionClient.getUserConditionByUserId(2)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
         AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(0);
@@ -112,7 +112,7 @@ public class WorkoutRestControllerTest {
     @Test
     public void updateWorkoutInfos_shouldUpdateWorkoutInfos() throws Exception {
         UserConditionDTO userConditionDTO = new UserConditionDTO(1, Gender.MALE);
-        when(conditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
+        when(userConditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
         AddUpdateWorkoutInfoDTO updateWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(5);
@@ -129,7 +129,7 @@ public class WorkoutRestControllerTest {
     @Test
     public void updateWorkoutInfos_shouldReturnJsonWithException() throws Exception {
         UserConditionDTO userConditionDTO = new UserConditionDTO(1, Gender.MALE);
-        when(conditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
+        when(userConditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
         AddUpdateWorkoutInfoDTO addWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(0);

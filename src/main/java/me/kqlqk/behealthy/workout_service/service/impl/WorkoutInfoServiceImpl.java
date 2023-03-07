@@ -5,7 +5,7 @@ import me.kqlqk.behealthy.workout_service.dto.condition_client.UserConditionDTO;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoAlreadyExistsException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.workout_info.WorkoutInfoNotFoundException;
-import me.kqlqk.behealthy.workout_service.feign_client.ConditionClient;
+import me.kqlqk.behealthy.workout_service.feign_client.UserConditionClient;
 import me.kqlqk.behealthy.workout_service.model.Exercise;
 import me.kqlqk.behealthy.workout_service.model.WorkoutInfo;
 import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 @Service
 public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     private final WorkoutInfoRepository workoutInfoRepository;
-    private final ConditionClient conditionClient;
+    private final UserConditionClient userConditionClient;
     private final ExerciseService exerciseService;
 
     @Autowired
-    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, ConditionClient conditionClient, ExerciseService exerciseService) {
+    public WorkoutInfoServiceImpl(WorkoutInfoRepository workoutInfoRepository, UserConditionClient userConditionClient, ExerciseService exerciseService) {
         this.workoutInfoRepository = workoutInfoRepository;
-        this.conditionClient = conditionClient;
+        this.userConditionClient = userConditionClient;
         this.exerciseService = exerciseService;
     }
 
@@ -104,16 +104,16 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
     @Transactional
     public void generateAndSaveCompleteWorkout(long userId, int workoutsPerWeek) {
         if (userId < 1) {
-            throw new WorkoutInfoNotFoundException("userId should be > 1");
+            throw new WorkoutInfoNotFoundException("UserId should be > 1");
         }
         if (workoutsPerWeek < 1 || workoutsPerWeek > 5) {
-            throw new WorkoutInfoNotFoundException("workoutsPerWeek should be between 1 and 5");
+            throw new WorkoutInfoNotFoundException("WorkoutsPerWeek should be between 1 and 5");
         }
         if (workoutInfoRepository.existsByUserId(userId)) {
             workoutInfoRepository.deleteByUserId(userId);
         }
 
-        UserConditionDTO userConditionDTO = conditionClient.getUserConditionByUserId(userId);
+        UserConditionDTO userConditionDTO = userConditionClient.getUserConditionByUserId(userId);
 
         switch (userConditionDTO.getGender()) {
             case MALE:

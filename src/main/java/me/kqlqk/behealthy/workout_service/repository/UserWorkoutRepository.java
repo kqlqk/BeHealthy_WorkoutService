@@ -12,7 +12,7 @@ public interface UserWorkoutRepository extends JpaRepository<UserWorkout, Long> 
 
     boolean existsByUserId(long userId);
 
-    boolean existsByExerciseName(String exerciseName);
+    boolean existsByExerciseNameIgnoreCase(String exerciseName);
 
-    void deleteByExerciseName(String exerciseName);
+    void deleteByExerciseNameIgnoreCase(String exerciseName);
 }

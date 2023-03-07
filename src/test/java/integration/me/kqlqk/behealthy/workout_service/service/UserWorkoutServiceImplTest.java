@@ -4,7 +4,6 @@ import annotations.ServiceTest;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.exercise.ExerciseNotFoundException;
 import me.kqlqk.behealthy.workout_service.exception.exceptions.user_workout.UserWorkoutNotFoundException;
 import me.kqlqk.behealthy.workout_service.model.UserWorkout;
-import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 import me.kqlqk.behealthy.workout_service.repository.UserWorkoutRepository;
 import me.kqlqk.behealthy.workout_service.service.impl.UserWorkoutServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,6 @@ public class UserWorkoutServiceImplTest {
         userWorkout.setExerciseName("some exercise");
         userWorkout.setDay(1);
         userWorkout.setNumberPerDay(1);
-        userWorkout.setMuscleGroup(MuscleGroup.ABS);
         userWorkout.setRep(10);
         userWorkout.setSet(4);
 

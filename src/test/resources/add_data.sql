@@ -295,14 +295,14 @@ insert into workout_info(user_id, workout_day, number_per_day, exercise_id, exer
 values (1, 2, 2, 5, 10, 4);
 
 
-insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+insert into user_workout(exercise_name, exercise_rep, exercise_set, workout_day, number_per_day,
                          user_id)
-values ('bench press', 'CHEST_TRICEPS', 10, 3, 1, 1, 1);
+values ('bench press', 10, 3, 1, 1, 1);
 
-insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+insert into user_workout(exercise_name, exercise_rep, exercise_set, workout_day, number_per_day,
                          user_id)
-values ('deadlift', 'FULL_BACK', 7, 4, 1, 2, 1);
+values ('deadlift', 7, 4, 1, 2, 1);
 
-insert into user_workout(exercise_name, muscle_group, exercise_rep, exercise_set, workout_day, number_per_day,
+insert into user_workout(exercise_name, exercise_rep, exercise_set, workout_day, number_per_day,
                          user_id)
-values ('90 degree press', 'FRONT_DELTS', 10, 4, 1, 1, 2);
+values ('90 degree press', 10, 4, 1, 1, 2);

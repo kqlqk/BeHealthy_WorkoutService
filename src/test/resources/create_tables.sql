@@ -35,7 +35,6 @@ create table user_workout
 (
     id             bigserial   not null unique,
     exercise_name  varchar(50) not null,
-    muscle_group   varchar(50) not null,
     exercise_rep   int         not null,
     exercise_set   int         not null,
     workout_day    int         not null,

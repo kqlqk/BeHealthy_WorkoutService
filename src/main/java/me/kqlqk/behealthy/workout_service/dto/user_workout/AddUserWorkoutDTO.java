@@ -3,9 +3,11 @@ package me.kqlqk.behealthy.workout_service.dto.user_workout;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.kqlqk.behealthy.workout_service.model.enums.MuscleGroup;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
@@ -14,9 +16,6 @@ public class AddUserWorkoutDTO {
     @Size(min = 1, max = 50, message = "ExerciseName should be between 1 and 50 characters")
     @NotBlank(message = "ExerciseName should be between 1 and 50 characters")
     private String exerciseName;
-
-    @NotNull(message = "MuscleGroup cannot be null")
-    private MuscleGroup muscleGroup;
 
     @Min(value = 0, message = "Rep should be between 0 and 1000")
     @Max(value = 1000, message = "Rep should be between 0 and 1000")

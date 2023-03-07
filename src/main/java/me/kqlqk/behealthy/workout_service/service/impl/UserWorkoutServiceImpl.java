@@ -39,7 +39,7 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
     @Override
     @Transactional
     public void remove(long userId, String exerciseName) {
-        if (!userWorkoutRepository.existsByExerciseName(exerciseName)) {
+        if (!userWorkoutRepository.existsByExerciseNameIgnoreCase(exerciseName)) {
             throw new ExerciseNotFoundException("Exercise with exerciseName = " + exerciseName + " for user with userId = " + userId + " not found");
         }
 
@@ -47,7 +47,7 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
 
         for (UserWorkout userWorkout : userWorkouts) {
             if (userWorkout.getExerciseName().equalsIgnoreCase(exerciseName)) {
-                userWorkoutRepository.deleteByExerciseName(exerciseName);
+                userWorkoutRepository.deleteByExerciseNameIgnoreCase(exerciseName);
             }
         }
 

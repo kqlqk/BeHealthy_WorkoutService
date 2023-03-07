@@ -31,7 +31,6 @@ public class UserWorkoutRestController {
         UserWorkout userWorkout = new UserWorkout();
         userWorkout.setUserId(userId);
         userWorkout.setExerciseName(addUserWorkoutDTO.getExerciseName());
-        userWorkout.setMuscleGroup(addUserWorkoutDTO.getMuscleGroup());
         userWorkout.setRep(addUserWorkoutDTO.getRep());
         userWorkout.setSet(addUserWorkoutDTO.getSet());
         userWorkout.setNumberPerDay(addUserWorkoutDTO.getNumberPerDay());
