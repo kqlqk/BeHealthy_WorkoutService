@@ -153,11 +153,13 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave1DayMaleSplit(long userId) {
         int numberPerDay = 1;
+        List<Exercise> exercisesChestTriceps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST_TRICEPS);
+
         save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                exercisesChestTriceps.get(0),
                 8,
                 3));
 
@@ -165,7 +167,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST_TRICEPS).get(0),
+                exercisesChestTriceps.get(1),
                 8,
                 3));
 
@@ -238,11 +240,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesQuadsButts = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS);
         save(new WorkoutInfo(
                 userId,
                 2,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(0),
                 8,
                 4));
 
@@ -250,7 +253,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 2,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(1),
                 8,
                 4));
 
@@ -281,6 +284,8 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave3DaysMaleSplit(long userId) {
         int numberPerDay = 1;
+        List<Exercise> exercisesChest = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST);
+        List<Exercise> exercisesTriceps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRICEPS);
         save(new WorkoutInfo(
                 userId,
                 1,
@@ -293,7 +298,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(0),
                 8,
                 4));
 
@@ -301,7 +306,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(1),
                 8,
                 4));
 
@@ -309,7 +314,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(0),
                 8,
                 4));
 
@@ -317,7 +322,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(1),
                 8,
                 4));
 
@@ -364,11 +369,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 5));
 
         numberPerDay = 1;
+        List<Exercise> exercisesQuadsButts = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS);
         save(new WorkoutInfo(
                 userId,
                 3,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(0),
                 8,
                 4));
 
@@ -376,7 +382,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 3,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(1),
                 8,
                 4));
 
@@ -399,6 +405,8 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave4DaysMaleSplit(long userId) {
         int numberPerDay = 1;
+        List<Exercise> exercisesChest = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.CHEST);
+        List<Exercise> exercisesTriceps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRICEPS);
         save(new WorkoutInfo(
                 userId,
                 1,
@@ -411,7 +419,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(0),
                 8,
                 4));
 
@@ -419,7 +427,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(1),
                 8,
                 4));
 
@@ -427,7 +435,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(0),
                 8,
                 4));
 
@@ -435,12 +443,13 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(1),
                 8,
                 4));
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesBiceps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.BICEPS);
         save(new WorkoutInfo(
                 userId,
                 2,
@@ -469,7 +478,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 2,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                exercisesBiceps.get(0),
                 8,
                 3));
 
@@ -477,12 +486,13 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 2,
                 numberPerDay,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BICEPS).get(0),
+                exercisesBiceps.get(1),
                 12,
                 3));
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesRearDelts = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.REAR_DELTS);
         save(new WorkoutInfo(
                 userId,
                 3,
@@ -503,7 +513,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 3,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                exercisesRearDelts.get(0),
                 8,
                 4));
 
@@ -511,7 +521,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 3,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.REAR_DELTS).get(0),
+                exercisesRearDelts.get(1),
                 8,
                 4));
 
@@ -541,11 +551,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesQuadsButts = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.QUADRICEPS_BUTTOKS);
         save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(0),
                 8,
                 4));
 
@@ -553,7 +564,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 4,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.QUADRICEPS_BUTTOKS).get(0),
+                exercisesQuadsButts.get(1),
                 8,
                 4));
 
@@ -576,6 +587,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave5DaysMaleSplit(long userId) {
         int numberPerDay = 1;
+        List<Exercise> exercisesChest = exerciseService.getSpecificAmountOfMuscleGroup(3, MuscleGroup.CHEST);
         save(new WorkoutInfo(
                 userId,
                 1,
@@ -588,7 +600,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(0),
                 8,
                 3));
 
@@ -596,7 +608,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(1),
                 8,
                 3));
 
@@ -604,12 +616,13 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.CHEST).get(0),
+                exercisesChest.get(2),
                 8,
                 3));
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesTraps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRAPS);
         save(new WorkoutInfo(
                 userId,
                 2,
@@ -622,7 +635,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 2,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                exercisesTraps.get(0),
                 8,
                 3));
 
@@ -630,7 +643,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 2,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRAPS).get(0),
+                exercisesTraps.get(1),
                 8,
                 3));
 
@@ -686,11 +699,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
 
         numberPerDay = 1;
+        List<Exercise> exercisesTriceps = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.TRICEPS);
         save(new WorkoutInfo(
                 userId,
                 4,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(0),
                 8,
                 3));
 
@@ -698,7 +712,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 4,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.TRICEPS).get(0),
+                exercisesTriceps.get(1),
                 8,
                 3));
 
@@ -814,11 +828,12 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     private void generateAndSave2DaysFemaleSplit(long userId) {
         int numberPerDay = 1;
+        List<Exercise> exercisesButts = exerciseService.getSpecificAmountOfMuscleGroup(2, MuscleGroup.BUTTOKS);
         save(new WorkoutInfo(
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                exercisesButts.get(0),
                 8,
                 4));
 
@@ -826,7 +841,7 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
                 userId,
                 1,
                 numberPerDay++,
-                exerciseService.getSpecificAmountOfMuscleGroup(1, MuscleGroup.BUTTOKS).get(0),
+                exercisesButts.get(1),
                 8,
                 4));
 

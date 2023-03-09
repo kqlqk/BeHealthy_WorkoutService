@@ -53,7 +53,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         List<Exercise> result = new ArrayList<>();
 
         if (exercises.size() < amount) {
-            throw new ExerciseNotFoundException("There's only " + exercises.size() + " exercises");
+            throw new ExerciseNotFoundException("There's only " + exercises.size() + " exercise for muscle group = " + muscleGroup.name());
         }
 
         int count = 0;

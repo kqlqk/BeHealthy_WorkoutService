@@ -115,7 +115,7 @@ public class WorkoutRestControllerTest {
         when(userConditionClient.getUserConditionByUserId(1)).thenReturn(userConditionDTO);
 
         ObjectMapper mapper = new ObjectMapper();
-        AddUpdateWorkoutInfoDTO updateWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(5);
+        AddUpdateWorkoutInfoDTO updateWorkoutInfoDTO = new AddUpdateWorkoutInfoDTO(2);
         String json = mapper.writeValueAsString(updateWorkoutInfoDTO);
 
         mockMvc.perform(put("/api/v1/workout")
