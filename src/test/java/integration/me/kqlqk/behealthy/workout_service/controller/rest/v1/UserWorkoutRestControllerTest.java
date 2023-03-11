@@ -50,6 +50,14 @@ public class UserWorkoutRestControllerTest {
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
                 .andExpect(jsonPath("$.info", is("UserWorkout with userId = 0 not found")));
+
+        mockMvc.perform(get("/api/v1/workout/user")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("Required request parameter 'userId' for method parameter type long is not present")));
     }
 
     @Test
@@ -235,6 +243,19 @@ public class UserWorkoutRestControllerTest {
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.info").exists())
                 .andExpect(jsonPath("$.info", is("Day should be between 1 and 7")));
+
+
+        addUserWorkoutDTO = new AddUserWorkoutDTO("new exercise", 12, 4, 1, 1);
+        json = objectMapper.writeValueAsString(addUserWorkoutDTO);
+
+        mockMvc.perform(post("/api/v1/workout/user")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("Required request parameter 'userId' for method parameter type long is not present")));
     }
 
     @Test
@@ -247,5 +268,26 @@ public class UserWorkoutRestControllerTest {
                                 .param("exerciseName", exerciseName))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void removeExercise_shouldReturnJsonWithException() throws Exception {
+        mockMvc.perform(delete("/api/v1/workout/user")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("exerciseName", "exercise"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("Required request parameter 'userId' for method parameter type long is not present")));
+
+        mockMvc.perform(delete("/api/v1/workout/user")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("userId", "1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.info").exists())
+                .andExpect(jsonPath("$.info", is("Required request parameter 'exerciseName' for method parameter type String is not present")));
     }
 }
