@@ -23,11 +23,14 @@ public class UserWorkoutServiceImpl implements UserWorkoutService {
 
     @Override
     public List<UserWorkout> getByUserId(long userId) {
-        if (!userWorkoutRepository.existsByUserId(userId)) {
+        List<UserWorkout> res = userWorkoutRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserWorkoutNotFoundException("UserWorkout with userId = " + userId + " not found"));
+
+        if (res.isEmpty()) {
             throw new UserWorkoutNotFoundException("UserWorkout with userId = " + userId + " not found");
         }
 
-        return userWorkoutRepository.getByUserId(userId);
+        return res;
     }
 
     @Override

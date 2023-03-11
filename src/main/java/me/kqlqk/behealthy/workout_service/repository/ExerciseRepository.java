@@ -6,20 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
-    Exercise findById(int id);
+    Optional<Exercise> findById(int id);
 
-    boolean existsById(int id);
+    Optional<Exercise> findByName(String name);
 
-    Exercise findByName(String name);
+    Optional<List<Exercise>> findByMuscleGroup(MuscleGroup muscleGroup);
 
-    boolean existsByName(String name);
-
-    List<Exercise> findByMuscleGroup(MuscleGroup muscleGroup);
-
-    boolean existsByMuscleGroup(MuscleGroup muscleGroup);
-
-    List<Exercise> findByAlternativeId(int id);
+    Optional<List<Exercise>> findByAlternativeId(int alternativeId);
 }

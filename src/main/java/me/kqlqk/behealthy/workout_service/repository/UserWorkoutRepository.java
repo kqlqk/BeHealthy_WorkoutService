@@ -5,12 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserWorkoutRepository extends JpaRepository<UserWorkout, Long> {
-    List<UserWorkout> getByUserId(long userId);
-
-    boolean existsByUserId(long userId);
+    Optional<List<UserWorkout>> findByUserId(long userId);
 
     boolean existsByExerciseNameIgnoreCase(String exerciseName);
 

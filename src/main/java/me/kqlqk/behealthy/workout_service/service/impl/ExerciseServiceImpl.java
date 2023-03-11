@@ -23,29 +23,26 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public Exercise getById(int id) {
-        if (!exerciseRepository.existsById(id)) {
-            throw new ExerciseNotFoundException("Exercise with id = " + id + " not found");
-        }
-
-        return exerciseRepository.findById(id);
+        return exerciseRepository.findById(id)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id = " + id + " not found"));
     }
 
     @Override
     public Exercise getByName(@NonNull String name) {
-        if (!exerciseRepository.existsByName(name)) {
-            throw new ExerciseNotFoundException("Exercise with name = " + name + " not found");
-        }
-
-        return exerciseRepository.findByName(name);
+        return exerciseRepository.findByName(name)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with name = " + name + " not found"));
     }
 
     @Override
     public List<Exercise> getByMuscleGroup(@NonNull MuscleGroup muscleGroup) {
-        if (!exerciseRepository.existsByMuscleGroup(muscleGroup)) {
+        List<Exercise> res = exerciseRepository.findByMuscleGroup(muscleGroup)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with muscleGroup = " + muscleGroup.name() + " not found"));
+
+        if (res.isEmpty()) {
             throw new ExerciseNotFoundException("Exercise with muscleGroup = " + muscleGroup.name() + " not found");
         }
 
-        return exerciseRepository.findByMuscleGroup(muscleGroup);
+        return res;
     }
 
     public List<Exercise> getSpecificAmountOfMuscleGroup(int amount, @NonNull MuscleGroup muscleGroup) {
@@ -73,7 +70,8 @@ public class ExerciseServiceImpl implements ExerciseService {
             throw new ExerciseNotFoundException("There are no alternative exercises for " + exercise.getName());
         }
 
-        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exercise.getAlternativeId());
+        List<Exercise> alternatives = exerciseRepository.findByAlternativeId(exercise.getAlternativeId())
+                .orElseThrow(() -> new ExerciseNotFoundException("There are no alternative exercises for " + exercise.getName()));
 
         alternatives.removeIf(alt -> alt.getId() == exercise.getId());
 

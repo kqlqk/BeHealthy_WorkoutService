@@ -35,13 +35,14 @@ public class WorkoutInfoServiceImpl implements WorkoutInfoService {
 
     @Override
     public List<WorkoutInfo> getByUserId(long userId) {
-        if (!workoutInfoRepository.existsByUserId(userId)) {
+        List<WorkoutInfo> res = workoutInfoRepository.findByUserId(userId)
+                .orElseThrow(() -> new WorkoutInfoNotFoundException("WorkoutInfos with userId = " + userId + " not found"));
+
+        if (res.isEmpty()) {
             throw new WorkoutInfoNotFoundException("WorkoutInfos with userId = " + userId + " not found");
         }
 
-        List<WorkoutInfo> workoutInfos = workoutInfoRepository.findByUserId(userId);
-
-        return setWorkoutsPerWeekAndReturn(workoutInfos);
+        return setWorkoutsPerWeekAndReturn(res);
     }
 
     private List<WorkoutInfo> setWorkoutsPerWeekAndReturn(List<WorkoutInfo> workoutInfos) {
