@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     Optional<Exercise> findById(int id);
 
-    Optional<Exercise> findByName(String name);
+    Optional<Exercise> findByNameIgnoreCase(String name);
 
     Optional<List<Exercise>> findByMuscleGroup(MuscleGroup muscleGroup);
 

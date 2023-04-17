@@ -29,7 +29,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public Exercise getByName(@NonNull String name) {
-        return exerciseRepository.findByName(name)
+        return exerciseRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise with name = " + name + " not found"));
     }
 
